@@ -1,0 +1,85 @@
+{
+
+	"adapters": {
+
+		"memory": {
+			"cache_size_limit": { "lo": 50000000, "hi": 100000000 },
+			"cache_item_limit": { "lo": 5000, "hi": 10000 }
+		},
+
+		"file": {
+			"dirname" : ".CDBNPP"
+		},
+
+		"http": {
+
+			"get": [
+				{
+					"url": "https://127.0.0.1/symfony/cdbnpp-cpp/rest/api",
+					"user": "cdbnpp_ro", "pass": "cdbnpp_ro_pass"
+				}
+			],
+
+			"set": [
+				{
+					"url": "https://127.0.0.1/symfony/cdbnpp-cpp/rest/api",
+					"user": "cdbnpp_rw", "pass": "cdbnpp_rw_pass"
+				}
+			],
+
+			"admin": [
+				{
+					"url": "https://127.0.0.1/symfony/cdbnpp-cpp/rest/api",
+					"user": "cdbnpp_ad", "pass": "cdbnpp_ad_pass"
+				}
+			],
+
+			"config": {
+				"jwt_expiration_seconds": 900,
+				"max_retries": 30,
+				"sleep_seconds": 30,
+				"verbose": true,
+				"timeout_ms": 1000,
+				"connect_timeout_ms": 1000,
+				"user_agent": "CDBNPP-Http-Client"
+			}
+		},
+
+		"db": {
+
+			"get": [
+				{ "dbtype": "sqlite3", "options": "timeout=2 readonly=true db=cdbnpp.sq3" }
+			],
+
+			"set": [
+				{ "dbtype": "sqlite3", "options": "timeout=2 db=cdbnpp.sq3" }
+			],
+
+			"admin": [
+				{ "dbtype": "sqlite3", "options": "timeout=2 db=cdbnpp.sq3" }
+			],
+
+			"db_examples": [
+
+				{ "dbtype": "mysql", "host": "127.0.0.1", "port": 3306, "user": "cdbnpp_ro", "pass": "cdbnpp_ro_pass", "dbname": "cdbnpp",
+						"options": "reconnect=1 connect_timeout=10 read_timeout=60" },
+				{ "dbtype": "mysql", "host": "127.0.0.1", "port": 3306, "user": "cdbnpp_rw", "pass": "cdbnpp_rw_pass", "dbname": "cdbnpp",
+						"options": "reconnect=1 connect_timeout=10 read_timeout=60" },
+				{ "dbtype": "mysql", "host": "127.0.0.1", "port": 3306, "user": "cdbnpp_ad", "pass": "cdbnpp_ad_pass", "dbname": "cdbnpp",
+						"options": "reconnect=1 connect_timeout=10 read_timeout=60" },
+
+				{ "dbtype": "postgresql", "host": "127.0.0.1", "port": 5432, "user": "cdbnpp_ro", "pass": "cdbnpp_ro_pass",
+					 "dbname": "cdbnpp", "options": "" },
+				{ "dbtype": "postgresql", "host": "127.0.0.1", "port": 5432, "user": "cdbnpp_rw", "pass": "cdbnpp_rw_pass",
+					 "dbname": "cdbnpp", "options": "" },
+				{ "dbtype": "postgresql", "host": "127.0.0.1", "port": 5432, "user": "cdbnpp_ad", "pass": "cdbnpp_ad_pass",
+					 "dbname": "cdbnpp", "options": "" },
+
+				{ "dbtype": "sqlite3", "options": "timeout=2 readonly=true db=cdbnpp.sq3" },
+				{ "dbtype": "sqlite3", "options": "timeout=2 db=cdbnpp.sq3" }
+
+			]
+
+		}
+	}
+}
