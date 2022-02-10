@@ -16,9 +16,9 @@ namespace CDBNPP {
 
 			// GET API:
 			PayloadResults_t getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
-          int64_t eventTime = 0, int64_t maxEntryTime = 0, int64_t run = 0, int64_t seq = 0 ) override;
+         const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime = 0, int64_t eventTime = 0, int64_t run = 0, int64_t seq = 0 ) override;
 			Result<SPayloadPtr_t> getPayload( const std::string& path, const std::vector<std::string>& flavors,
-				int64_t eventTime = 0, int64_t maxEntryTime = 0, int64_t run = 0, int64_t seq = 0 ) override;
+				 const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime = 0, int64_t eventTime = 0, int64_t run = 0, int64_t seq = 0 ) override;
 
 			// SET API:
 			Result<SPayloadPtr_t> prepareUpload( const std::string& path ) override;

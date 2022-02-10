@@ -12,13 +12,13 @@ namespace CDBNPP {
 	PayloadAdapterHttp::PayloadAdapterHttp() : IPayloadAdapter("http"), mHttpClient(new HttpClient) {}
 
 	PayloadResults_t PayloadAdapterHttp::getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
-			int64_t eventTime, int64_t maxEntryTime, int64_t run, int64_t seq ) {
+			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
 
 		// TODO: possible latency optimization: do bulk HTTP request here instead of many single requests
 
 		PayloadResults_t res;
 		for ( const auto& path : paths ) {
-			Result<SPayloadPtr_t> rc = getPayload( path, flavors, eventTime, maxEntryTime, run, seq );
+			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
 			if ( rc.valid() ) {
 				res.insert({ path, rc.get() });
 			}
@@ -27,7 +27,7 @@ namespace CDBNPP {
 	}
 
 	Result<SPayloadPtr_t> PayloadAdapterHttp::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
-			int64_t eventTime, int64_t maxEntryTime, int64_t run, int64_t seq ) {
+			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
 
 		Result<SPayloadPtr_t> res;
 
@@ -58,10 +58,21 @@ namespace CDBNPP {
 			return res;
 		}
 
+		std::string dirpath = directory + "/" + structName;
+    // check for path-specific maxEntryTime overrides
+    if ( maxEntryTimeOverrides.size() ) {
+      for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
+        if ( string_starts_with( dirpath, opath ) ) {
+          maxEntryTime = otime;
+          break;
+        }
+      }
+    }
+
 		// get tag
-		auto tagit = mPaths.find( directory + "/" + structName );
+		auto tagit = mPaths.find( dirpath );
 		if ( tagit == mPaths.end() ) {
-			res.setMsg( "cannot find tag for " + directory + "/" + structName );
+			res.setMsg( "cannot find tag for " + dirpath );
 			return res;
 		}
 
@@ -70,7 +81,7 @@ namespace CDBNPP {
 		int64_t mode = tagit->second->mode();
 
 		if ( !tbname.size() ) {
-			res.setMsg( "requested path points to the directory, need struct: " + directory + "/" + structName );
+			res.setMsg( "requested path points to the directory, need struct: " + dirpath );
 			return res;
 		}
 

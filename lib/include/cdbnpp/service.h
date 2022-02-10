@@ -3,6 +3,7 @@
 #include <ctime>
 #include <memory>
 #include <set>
+#include <string>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
@@ -63,6 +64,7 @@ namespace CDBNPP {
 			// global params, mode = 1 uses ET,MET mode = 2 uses Run,Seq
 			void setMaxEntryTime( int64_t maxEntryTime ) { mMaxEntryTime = maxEntryTime; }
 			void setMaxEntryTime( const std::string& maxEntryTime ) { mMaxEntryTime = string_to_time( maxEntryTime ); }
+			void setMaxEntryTimeOverride( const std::string& path, uint64_t maxEntryTime ) { mMaxEntryTimeOverrides.insert({ path, maxEntryTime }); }
 			void setEventTime( int64_t eventTime ) { mEventTime = eventTime; }
 			void setEventTime( const std::string& eventTime ) { mEventTime = string_to_time( eventTime ); }
 			void setRun( int64_t run ) { mRun = run; }
@@ -93,6 +95,7 @@ namespace CDBNPP {
 			int64_t mRun{0};
 			int64_t mSeq{0};
 			std::vector<std::string> mFlavors{ {"ofl"} };
+			PathToTimeMap_t mMaxEntryTimeOverrides{};
 
 			IPayloadAdapterPtr_t mPayloadAdapterMemory{nullptr};
 			IPayloadAdapterPtr_t mPayloadAdapterFile{nullptr};

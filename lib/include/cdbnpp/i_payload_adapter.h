@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 #include <jwt/jwt.hpp>
 
@@ -15,6 +16,7 @@ namespace CDBNPP {
 
 	class IPayloadAdapter;
 	using IPayloadAdapterPtr_t = std::shared_ptr<IPayloadAdapter>;
+	using PathToTimeMap_t = std::unordered_map<std::string,uint64_t>;
 
 	class IPayloadAdapter {
 
@@ -27,9 +29,9 @@ namespace CDBNPP {
 
 			// GET API:
 			virtual PayloadResults_t getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
-					int64_t eventTime = 0, int64_t maxEntryTime = 0, int64_t run = 0, int64_t seq = 0 ) = 0;
+				const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime = 0, int64_t eventTime = 0, int64_t run = 0, int64_t seq = 0 ) = 0;
 			virtual Result<SPayloadPtr_t> getPayload( const std::string& path, const std::vector<std::string>& flavors,
-					int64_t eventTime = 0, int64_t maxEntryTime = 0, int64_t run = 0, int64_t seq = 0 ) = 0;
+				const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime = 0, int64_t eventTime = 0,  int64_t run = 0, int64_t seq = 0 ) = 0;
 
 			// SET API:
 			virtual Result<SPayloadPtr_t> prepareUpload( const std::string& path ) = 0;

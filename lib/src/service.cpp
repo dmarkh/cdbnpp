@@ -128,7 +128,7 @@ namespace CDBNPP {
 		std::set<std::string> remaining_paths = paths;
 
 		for ( auto& adapter : mEnabledAdapters ) {
-			PayloadResults_t resolved_paths = adapter->getPayloads( remaining_paths, mFlavors, mEventTime, mMaxEntryTime, mRun, mSeq );
+			PayloadResults_t resolved_paths = adapter->getPayloads( remaining_paths, mFlavors, mMaxEntryTimeOverrides, mMaxEntryTime, mEventTime, mRun, mSeq );
 			for ( const auto& [key, value] : resolved_paths ) {
 				remaining_paths.erase( key );
 				res.insert({ value->directory() + "/" + value->structName(), value });
