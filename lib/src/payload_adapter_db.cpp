@@ -451,7 +451,7 @@ namespace CDBNPP {
 				ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
 				ddl.column("mode", soci::dt_unsigned_long_long )("not null default 0"); // 0 = tag, 1 = struct bt,et; 2 = struct run,seq
 				ddl.column("tbname", soci::dt_string, 512 )("not null");
-				ddl.primary_key("cdb_tags_pk", "id,pid,name,ct,dt");
+				ddl.primary_key("cdb_tags_pk", "pid,name,dt");
 				ddl.unique("cdb_tags_id", "id");
 			}
 			// cdb_schemas
@@ -462,9 +462,8 @@ namespace CDBNPP {
 				ddl.column("ct", soci::dt_unsigned_long_long )("not null");
 				ddl.column("dt", soci::dt_unsigned_long_long )("null default 0");
 				ddl.column("data", soci::dt_string )("not null");
-				ddl.primary_key("cdb_schemas_pk", "id,pid,ct,dt");
+				ddl.primary_key("cdb_schemas_pk", "pid,dt");
 				ddl.unique("cdb_schemas_id", "id");
-				ddl.unique("cdb_schemas_pid", "pid");
 			}
 			tr.commit();
 
@@ -506,7 +505,7 @@ namespace CDBNPP {
 				ddl.column("seq", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 1
 				ddl.column("fmt", soci::dt_string, 36 )("not null"); // see Service::formats()
 				ddl.column("uri", soci::dt_string, 2048 )("not null");
-				ddl.primary_key("cdb_iov_"+tablename+"_pk", "id,ct,bt,dt,flavor");
+				ddl.primary_key("cdb_iov_"+tablename+"_pk", "pid,bt,run,seq,dt,flavor");
 				ddl.unique("cdb_iov_"+tablename+"_id", "id");
 			}
 			if ( create_storage ) {
@@ -519,7 +518,7 @@ namespace CDBNPP {
 					ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
 					ddl.column("data", soci::dt_string )("not null");
 					ddl.column("size", soci::dt_unsigned_long_long )("not null default 0");
-					ddl.primary_key("cdb_data_"+tablename+"_pk", "id,pid,ct,dt");
+					ddl.primary_key("cdb_data_"+tablename+"_pk", "id,pid,dt");
 					ddl.unique("cdb_data_"+tablename+"_id", "id");
 				}
 			}
