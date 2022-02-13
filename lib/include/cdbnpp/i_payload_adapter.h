@@ -23,6 +23,7 @@ namespace CDBNPP {
 		public:
 
 			IPayloadAdapter( const std::string& id ) : mId(id) {}
+			virtual ~IPayloadAdapter() = 0;
 
 			const std::string& id() { return mId; }
 			const nlohmann::json& config() { return mConfig; }
@@ -57,7 +58,7 @@ namespace CDBNPP {
 		protected:
 
 			std::string mId;
-			nlohmann::json mConfig;
+			nlohmann::json mConfig{};
 
 	};
 

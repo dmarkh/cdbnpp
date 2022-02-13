@@ -71,7 +71,7 @@ namespace CDBNPP {
 			int64_t mMode{0};
 			std::string mSchema{};
 			IdToTag_t mChildren{};
-			WTagPtr_t mParent;
+			WTagPtr_t mParent{};
 	};
 
 } // namespace CDBNPP
