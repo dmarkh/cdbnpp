@@ -508,6 +508,9 @@ namespace CDBNPP {
 				ddl.primary_key("cdb_iov_"+tablename+"_pk", "pid,bt,run,seq,dt,flavor");
 				ddl.unique("cdb_iov_"+tablename+"_id", "id");
 			}
+
+			mSession->once << "CREATE INDEX cdb_iov_" + tablename + "_ct ON cdb_iov_" + tablename + " (ct)";
+
 			if ( create_storage ) {
 				// cdb_data_<tablename>
 				{
@@ -521,6 +524,8 @@ namespace CDBNPP {
 					ddl.primary_key("cdb_data_"+tablename+"_pk", "id,pid,dt");
 					ddl.unique("cdb_data_"+tablename+"_id", "id");
 				}
+				mSession->once << "CREATE INDEX cdb_data_" + tablename + "_pid ON cdb_data_" + tablename + " (pid)";
+				mSession->once << "CREATE INDEX cdb_data_" + tablename + "_ct ON cdb_data_" + tablename + " (ct)";
 			}
 			tr.commit();
 		} catch( std::exception const & e ) {
