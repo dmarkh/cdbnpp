@@ -130,8 +130,14 @@ namespace CDBNPP {
 		for ( auto& adapter : mEnabledAdapters ) {
 			PayloadResults_t resolved_paths = adapter->getPayloads( remaining_paths, mFlavors, mMaxEntryTimeOverrides, mMaxEntryTime, mEventTime, mRun, mSeq );
 			for ( const auto& [key, value] : resolved_paths ) {
-				remaining_paths.erase( key );
-				res.insert({ value->directory() + "/" + value->structName(), value });
+				size_t num = remaining_paths.erase( key );
+				if ( num == 0 ) {
+					remaining_paths.erase( value->flavor() + ":" + key );
+				}
+				bool ok = res.insert({ value->directory() + "/" + value->structName(), value }).second;
+				if ( !ok ) {
+					CDBNPP_LOG_DEBUG << "WARNING: " << value->flavor() + ":" + value->directory() + "/" + value->structName() << " was already resolved, cannot insert again!" << std::endl;
+				}
 				if ( adapter->id() != "memory" && adapter->id() != "file" && mPayloadAdapterMemory != nullptr ) {
 					mPayloadAdapterMemory->setPayload( value );
 				}

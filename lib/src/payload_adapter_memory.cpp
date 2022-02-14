@@ -15,7 +15,8 @@ namespace CDBNPP {
 		for ( const auto& path : paths ) {
 			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
 			if ( rc.valid() ) {
-				res.insert({ path, rc.get() });
+				SPayloadPtr_t p = rc.get();
+				res.insert({ p->directory() + "/" + p->structName(), p });
 			}
 		}
 		return res;

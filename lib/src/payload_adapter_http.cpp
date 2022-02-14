@@ -17,10 +17,29 @@ namespace CDBNPP {
 		// TODO: possible latency optimization: do bulk HTTP request here instead of many single requests
 
 		PayloadResults_t res;
+
+		if ( !ensureMetadata() ) {
+			return res;
+		}
+
+		std::set<std::string> unfolded_paths{};
 		for ( const auto& path : paths ) {
+			if ( mPaths.count(path) == 0 ) {
+				for ( const auto& [ key, value ] : mPaths ) {
+					if ( string_starts_with( key, path ) && value->mode() > 0 ) {
+						unfolded_paths.insert( key );
+					}
+				}
+			} else {
+				unfolded_paths.insert( path );
+			}
+		}
+
+		for ( const auto& path : unfolded_paths ) {
 			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
 			if ( rc.valid() ) {
-				res.insert({ path, rc.get() });
+				SPayloadPtr_t p = rc.get();
+				res.insert({ p->directory() + "/" + p->structName(), p });
 			}
 		}
 		return res;

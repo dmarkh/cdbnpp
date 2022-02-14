@@ -18,12 +18,32 @@ namespace CDBNPP {
 	PayloadResults_t PayloadAdapterDb::getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
 		PayloadResults_t res;
+
+		if ( !ensureMetadata() ) {
+			return res;
+		}
+
+		std::set<std::string> unfolded_paths{};
 		for ( const auto& path : paths ) {
-			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
-			if ( rc.valid() ) {
-				res.insert({ path, rc.get() });
+			if ( mPaths.count(path) == 0 ) {
+				for ( const auto& [ key, value ] : mPaths ) {
+					if ( string_starts_with( key, path ) && value->mode() > 0 ) {
+						unfolded_paths.insert( key );
+					}
+				}
+			} else {
+				unfolded_paths.insert( path );
 			}
 		}
+
+		for ( const auto& path : unfolded_paths ) {
+			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
+			if ( rc.valid() ) {
+				SPayloadPtr_t p = rc.get();
+				res.insert({ p->directory() + "/" + p->structName(), p });
+			}
+		}
+
 		return res;
 	}
 
