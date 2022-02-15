@@ -1,10 +1,9 @@
 # CDBNPP - Conditions DataBase API library for NPP (C++)
 
-![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/dmarkh/cdbnpp)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/dmarkh/cdbnpp?label=CodeFactor%20Code%20Quality)
+![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/dmarkh/cdbnpp?label=LGTM%20Code%20Quality)
 ![GitHub](https://img.shields.io/github/license/dmarkh/cdbnpp)
 ![GitHub issues](https://img.shields.io/github/issues-raw/dmarkh/cdbnpp)
-![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/dmarkh/cdbnpp)
-![Lines of code](https://img.shields.io/tokei/lines/github/dmarkh/cdbnpp)
 
 ## Intro
 CDBNPP is a general-purpose Conditions Database API library for C++, addressing conditions/calibrations data access requirements of HEP and NP experiments.
