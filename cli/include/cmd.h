@@ -13,15 +13,12 @@ namespace CDBNPP {
 	typedef std::map<std::string, std::tuple<std::string,std::string,std::function<void( const std::vector<std::string>& args )>>> MapOfCommands;
 
 	class Cmd {
-
 		public:
-
 			void registerCommand( std::string name, std::string args, std::string desc, std::function<void( const std::vector<std::string>& args )> func ) {
 				mCommands.insert({ name, std::make_tuple( args, desc, func ) });
 			}
 
 			void process( int argc, const char *argv[] ) {
-
 				std::vector<std::string> args( argv+1, argv+argc );
 
 				// check for no arguments => help page
@@ -69,7 +66,6 @@ namespace CDBNPP {
 
 		private:
 			MapOfCommands mCommands{};
-
 	};
 
 	typedef Singleton<Cmd, CreateMeyers> CmdS;

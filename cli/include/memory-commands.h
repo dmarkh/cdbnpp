@@ -4,7 +4,6 @@
 namespace CDBNPP {
 
 inline void memory_test_setget( __attribute__ ((unused)) const std::vector<std::string>& args ) {
-
   Service db;
   db.init("memory");
 
@@ -78,7 +77,6 @@ inline void memory_test_setget( __attribute__ ((unused)) const std::vector<std::
   } else {
 		std::cerr << "ERROR: search for payload 2 by run/seq yielded " << res.size() << " results" << std::endl;
 	}
-
 }
 
 } // namespace CDBNPP

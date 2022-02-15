@@ -13,7 +13,6 @@
 using namespace CDBNPP;
 
 int main(int argc, const char *argv[]) {
-
 	CDBNPP::Log::setError( &std::cerr );
 	CDBNPP::Log::setInfo(  &std::cout );
 	CDBNPP::Log::setDebug( &std::cout );
