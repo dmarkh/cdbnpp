@@ -16,9 +16,7 @@ namespace CDBNPP {
 	using HttpPostParams_t = std::vector<std::pair<std::string,std::string>>;
 
 	class HttpCurlHolder {
-
 		public:
-
 			HttpCurlHolder();
 			HttpCurlHolder(const HttpCurlHolder& other) = default;
 			HttpCurlHolder(HttpCurlHolder&& old) noexcept = default;
@@ -60,7 +58,6 @@ namespace CDBNPP {
 			std::string mHeaderString; // used in write function!
 
 		private:
-
 			static std::mutex curl_easy_init_mutex_;
 			CURL* handle{nullptr};
 			curl_mime* mime{nullptr};
@@ -68,7 +65,6 @@ namespace CDBNPP {
 			std::string mUserAgent{"Conditions-Database-Client"};
 			unsigned int mMaxRetries{30};
 			unsigned int mSleepSeconds{30};
-
 	}; // class HttpCurlHolder
 
 } // namespace CDBNPP

@@ -15,9 +15,7 @@ namespace CDBNPP {
 	using PathToTag_t = std::map<std::string,STagPtr_t>;
 
 	class Tag {
-
 		public:
-
 			Tag( const std::string& id, const std::string& name, const std::string& pid = "",
 				const std::string& tbname = "", int64_t ct = 0, int64_t dt = 0, int64_t mode = 0, const std::string& schema = "" )
 				: mId(id), mName(name), mPid(pid), mTbname(tbname), mCt(ct), mDt(dt), mMode(mode), mSchema(schema) {}
@@ -61,7 +59,6 @@ namespace CDBNPP {
 			}
 
 		private:
-
 			std::string mId{};
 			std::string mName{};
 			std::string mPid{};

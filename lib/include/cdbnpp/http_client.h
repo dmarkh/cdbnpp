@@ -12,9 +12,7 @@ namespace CDBNPP {
 	using HttpClientPtr_t = std::shared_ptr<HttpClient>;
 
 	class HttpClient {
-
 		public:
-
 			HttpClient();
 			~HttpClient();
 
@@ -43,7 +41,6 @@ namespace CDBNPP {
 			std::string urlDecode(const std::string& s) const { return mEncoder.urlDecode(s); }
 
 		private:
-
 			void SetCommon( HttpCurlHolderPtr_t& curl_ );
 
 			HttpCurlHolder mEncoder;

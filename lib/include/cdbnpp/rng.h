@@ -14,9 +14,7 @@ namespace CDBNPP {
 	using RngS = Singleton<Rng, CreateMeyers>;
 
 	class Rng {
-
 		public:
-
 			Rng() : mRng( std::make_shared<XoshiroCpp::Xoshiro256StarStar>( std::time(nullptr) ) ) {}
 			~Rng() = default;
 
@@ -31,7 +29,6 @@ namespace CDBNPP {
 
 		private:
 			std::shared_ptr<XoshiroCpp::Xoshiro256StarStar> mRng{nullptr};
-
 	};
 
 

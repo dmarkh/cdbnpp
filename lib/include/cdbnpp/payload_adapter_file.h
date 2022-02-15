@@ -7,9 +7,7 @@ namespace CDBNPP {
 	using DecodedFileNameTuple = std::tuple<std::string, std::string, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, bool>;
 
 	class PayloadAdapterFile : public IPayloadAdapter {
-
 		public:
-
 			PayloadAdapterFile();
 			virtual ~PayloadAdapterFile() = default;
 
@@ -42,9 +40,7 @@ namespace CDBNPP {
 			Result<std::string> downloadData( const std::string& uri ) override;
 
 		private:
-
 			DecodedFileNameTuple decodeFilename( const std::string& filename );
-
 	};
 
 } // namespace CDBNPP

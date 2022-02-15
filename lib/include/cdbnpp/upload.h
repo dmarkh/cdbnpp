@@ -5,9 +5,7 @@
 namespace CDBNPP {
 
 	class Upload {
-
 		public:
-
 			Upload() {};
 			Upload( const std::string& path = "", int64_t bt = 0, int64_t et = 0, int64_t run = 0 ) 
 				: mPath(path), mBeginTime(bt), mEndTime(et), mRun(run) {};
@@ -28,9 +26,7 @@ namespace CDBNPP {
 			void setRun( int64_t run ) { mRun = (run >= 0 ? run : 0); }
 
 		private:
-
 			std::tuple<std::string,std::string,std::string,bool> decodePath( const std::string& path );
-
 			std::string mPath{};
 			std::string mData{};
 			int64_t mBeginTime{0};

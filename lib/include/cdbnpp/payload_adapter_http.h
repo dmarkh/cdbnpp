@@ -12,9 +12,7 @@
 namespace CDBNPP {
 
 	class PayloadAdapterHttp : public IPayloadAdapter {
-
 		public:
-
 			PayloadAdapterHttp();
 			virtual ~PayloadAdapterHttp() = default;
 
@@ -72,7 +70,6 @@ namespace CDBNPP {
       PathToTag_t mPaths{};
 
 			HttpClientPtr_t mHttpClient{nullptr};
-
 	};
 
 } // namespace CDBNPP

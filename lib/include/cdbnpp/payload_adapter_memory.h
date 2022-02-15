@@ -12,9 +12,7 @@ namespace CDBNPP {
 
 
 	class PayloadAdapterMemory : public IPayloadAdapter {
-
 		public:
-
 			PayloadAdapterMemory();
 			virtual ~PayloadAdapterMemory() = default;
 
@@ -52,7 +50,6 @@ namespace CDBNPP {
 			void setCacheItemLimit( size_t lo, size_t hi ) { mCacheItemLimitLo = lo; mCacheSizeLimitHi = hi; }
 
 		private:
-
 			bool maintainCacheWithinLimits();
 
 			std::deque<SPayloadPtr_t> mCache{};
@@ -61,7 +58,6 @@ namespace CDBNPP {
 			size_t mCacheSizeLimitHi{100 * CDBNPP_MEGABYTES};
 			size_t mCacheItemLimitLo{ 5000};
 			size_t mCacheItemLimitHi{10000};
-
 	};
 
 } // namespace CDBNPP

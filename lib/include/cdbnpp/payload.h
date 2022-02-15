@@ -20,18 +20,14 @@ namespace CDBNPP {
 	using PayloadResults_t = std::unordered_map<std::string, SPayloadPtr_t>;
 
 	class Payload {
-
 		public:
-
 			Payload() = default;
-
 			Payload( const std::string& id, const std::string& pid, const std::string& flavor,
 				const std::string& structName, const std::string& directory,
 				int64_t ct, int64_t bt, int64_t et, int64_t dt, int64_t run, int64_t seq ) 
 				: mId(id), mPid(pid), mFlavor(flavor), mStructName(structName), mDirectory(directory),
 					mCreateTime(ct), mBeginTime(bt), mEndTime(et), mDeactiveTime(dt),
 					mRun(run), mSeq(seq) {};
-
 			~Payload() = default;
 
 			bool valid() {
@@ -116,7 +112,6 @@ namespace CDBNPP {
 			}
 
 		private:
-
 			std::string mId{};						// <uuid> = specific payload UUID
 			std::string mPid{};						// <uuid> = specific parent structID ( aka tag-struct )
 			std::string mFlavor{};				// i.e. "sim" or "ofl" or whatnot
@@ -134,7 +129,6 @@ namespace CDBNPP {
 			int64_t mMode{0}; // 0 = by time, 1 = by run
 			std::string mData{};
 			std::string mFmt{}; // dat, json, bson, ubjson, cbor, msgpack
-
 	};
 
 
