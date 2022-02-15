@@ -1,6 +1,8 @@
 # CDBNPP - Conditions DataBase API library for NPP (C++)
 
-[![CodeFactor](https://www.codefactor.io/repository/github/dmarkh/cdbnpp/badge/master)](https://www.codefactor.io/repository/github/dmarkh/cdbnpp/overview/master)
+![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/dmarkh/cdbnpp)
+![GitHub](https://img.shields.io/github/license/dmarkh/cdbnpp)
+![GitHub issues](https://img.shields.io/github/issues-raw/dmarkh/cdbnpp)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/dmarkh/cdbnpp)
 ![Lines of code](https://img.shields.io/tokei/lines/github/dmarkh/cdbnpp)
 
