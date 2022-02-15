@@ -27,7 +27,6 @@ namespace CDBNPP {
 
 	Result<SPayloadPtr_t> PayloadAdapterFile::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t eventRun, int64_t eventSeq ) {
-
 		Result<SPayloadPtr_t> res;
 
 		auto [ flavors, directory, structName, is_path_valid ] = Payload::decodePath( path );
@@ -73,10 +72,8 @@ namespace CDBNPP {
     }
 
 		for ( const auto& flavor : ( flavors.size() ? flavors : service_flavors ) ) {
-
 			// iterate over fs files, find and return one that fits
 			for ( const auto& dir_entry : std::filesystem::directory_iterator{dir} ) {
-
 				if ( !dir_entry.is_regular_file() ) { continue; }
 
 				auto [
@@ -128,20 +125,17 @@ namespace CDBNPP {
 						// finally, silently discard newly contstructed payload, it is worse than the one previously found
 					}
 				}
-
 			} // directory loop
 
 			if ( res.valid() ) {
 				return res;
 			}
-
 		} // flavors loop
 
 		return res;
 	}
 
 	Result<std::string> PayloadAdapterFile::setPayload( const SPayloadPtr_t& payload ) {
-
 		Result<std::string> res;
 
 		if ( !payload->ready() ) {
@@ -246,7 +240,6 @@ namespace CDBNPP {
 	}
 
 	Result<SPayloadPtr_t> PayloadAdapterFile::prepareUpload( const std::string& path ) {
-
 		Result<SPayloadPtr_t> res;
 
 		auto [ flavors, directory, structName, is_path_valid ] = Payload::decodePath( path );
@@ -294,7 +287,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterFile::createTag( const std::string& path, int64_t tag_mode ) {
-
 		Result<std::string> res;
 
 		if ( tag_mode > 0 ) {

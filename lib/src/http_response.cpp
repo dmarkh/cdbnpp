@@ -8,7 +8,6 @@ namespace CDBNPP {
 
 	HttpResponse::HttpResponse( std::shared_ptr<HttpCurlHolder> curl, std::string&& p_text, std::string&& p_header, long p_error = 0 )
 		:  text(std::move(p_text)), header(std::move(p_header)), error(p_error), mCurl(std::move(curl)) {
-
 			if ( !mCurl ) {
 				std::cerr << "CDBNPP FATAL ERROR: no curl handle" << std::endl;
 				std::exit(EXIT_FAILURE);
@@ -34,7 +33,6 @@ namespace CDBNPP {
 			downloaded_bytes = downloaded_bytes_double;
 			uploaded_bytes = uploaded_bytes_double;
 #endif
-
 		}
 
 } // namespace CDBNPP
