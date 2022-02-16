@@ -6,7 +6,6 @@
 namespace CDBNPP {
 
 inline void file_tags_create( const std::vector<std::string>& args ) {
-
 	if ( args.size() < 2 ) {
 		std::cerr << "please provide <tag-path> as an argument!" << std::endl;
 		return;
@@ -21,11 +20,9 @@ inline void file_tags_create( const std::vector<std::string>& args ) {
   } else {
     std::cout << "failed to create tag: " << args[1] << ", msg: " << res.msg() << "\n";
   }
-
 }
 
 inline void file_payload_getbytime( const std::vector<std::string>& args ) {
-
   if ( args.size() < 3 ) {
     std::cerr << "ERROR: please provide argument: <path> <eventTime> <maxEntryTime>" << "\n";
     return;
@@ -55,11 +52,9 @@ inline void file_payload_getbytime( const std::vector<std::string>& args ) {
 	    std::cout << "got payload: " << p << std::endl;
   	}
 	}
-
 }
 
 inline void file_payload_getbyrun( const std::vector<std::string>& args ) {
-
   if ( args.size() < 3 ) {
     std::cerr << "ERROR: please provide argument: <path> <run> <seq> <maxEntryTime>" << "\n";
     return;
@@ -86,11 +81,9 @@ inline void file_payload_getbyrun( const std::vector<std::string>& args ) {
     	std::cout << "got payload: " << p << std::endl;
 		}
   }
-
 }
 
 inline void file_payload_setbyrun( const std::vector<std::string>& args ) {
-
   if ( args.size() < 4 ) {
     std::cerr << "ERROR: please provide arguments: <path> <file-name> <run> <seq>" << "\n";
     return;
@@ -132,11 +125,9 @@ inline void file_payload_setbyrun( const std::vector<std::string>& args ) {
   } else {
     std::cout << "payload was successfully uploaded, id: " << rc.get() << "\n";
   }
-
 }
 
 inline void file_payload_setbytime( const std::vector<std::string>& args ) {
-
   if ( args.size() < 4 ) {
     std::cerr << "ERROR: please provide arguments: <path> <file-name> <beginTime> <endTime>" << "\n";
     return;
@@ -182,7 +173,6 @@ inline void file_payload_setbytime( const std::vector<std::string>& args ) {
   } else {
     std::cout << "payload was successfully uploaded, id: " << rc.get() << "\n";
   }
-
 }
 
 

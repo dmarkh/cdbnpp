@@ -16,7 +16,6 @@
 namespace CDBNPP {
 
 	void Service::init( const std::string& adapters ) {
-
 		if ( !mConfig.empty() && mConfig != nlohmann::json::value_t::null ) {
 			if ( mConfig.is_discarded() ) {
 				std::cerr << "CDBNPP FATAL ERROR: config file is set but is malformed" << std::endl;
@@ -74,7 +73,6 @@ namespace CDBNPP {
 				std::cerr << "CDBNPP FATAL ERROR: unable to find usable CDBNPP config file" << std::endl;
 				std::exit(EXIT_FAILURE);
 			}
-
 		}
 
 		// configure payload adapters - all of them
@@ -112,7 +110,6 @@ namespace CDBNPP {
 				mEnabledAdapters.push_back( mPayloadAdapterHttp );
 			}
 		}
-
 	}
 
 	std::vector<std::string> Service::enabledAdapters() {
@@ -182,7 +179,6 @@ namespace CDBNPP {
 	}
 
 	SPayloadPtr_t& prepareUpload( SPayloadPtr_t& payload ) {
-
 		payload->setId( generate_uuid() ); // regenerate uuid
 		payload->setCreateTime( time(0) ); // set create time to NOW
 		payload->setDeactiveTime( 0 ); // this entry is not deactivated yet
@@ -317,7 +313,6 @@ namespace CDBNPP {
 	}
 
 	bool Service::validateConfigFile() {
-
 		std::string config_schema = R"(
 {
   "$id":"file://.cdbnpp_config.json",

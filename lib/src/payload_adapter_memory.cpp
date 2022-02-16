@@ -24,7 +24,6 @@ namespace CDBNPP {
 
 	Result<SPayloadPtr_t> PayloadAdapterMemory::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
-
 		Result<SPayloadPtr_t> res;
 
 		auto [ flavors, directory, structName, is_path_valid ] = Payload::decodePath( path );
@@ -86,7 +85,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterMemory::setPayload( const SPayloadPtr_t& payload ) {
-
 		Result<std::string> res;
 
 		if ( !payload->ready() || payload->endTime() == 0 ) {

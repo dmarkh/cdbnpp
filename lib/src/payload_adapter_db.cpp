@@ -49,7 +49,6 @@ namespace CDBNPP {
 
 	Result<SPayloadPtr_t> PayloadAdapterDb::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t eventRun, int64_t eventSeq ) {
-
 		Result<SPayloadPtr_t> res;
 
 		if ( !ensureMetadata() ) {
@@ -116,7 +115,6 @@ namespace CDBNPP {
 		}
 
 		for ( const auto& flavor : ( flavors.size() ? flavors : service_flavors ) ) {
-
 			std::string id{""}, uri{""}, fmt{""};
 			uint64_t bt = 0, et = 0, ct = 0, dt = 0, run = 0, seq = 0, mode = tagit->second->mode();
 
@@ -139,7 +137,6 @@ namespace CDBNPP {
 						mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
 							use( flavor, "flavor"), use( eventRun, "run" ), use( eventSeq, "seq" );
 					}
-
 				} catch( std::exception const & e ) {
 					res.setMsg( "database exception: " + std::string(e.what()) );
 					return res;
@@ -215,7 +212,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterDb::setPayload( const SPayloadPtr_t& payload ) {
-
 		Result<std::string> res;
 
 		if ( !payload->ready() ) {
@@ -345,7 +341,6 @@ namespace CDBNPP {
 	}
 
 	Result<SPayloadPtr_t> PayloadAdapterDb::prepareUpload( const std::string& path ) {
-
 		Result<SPayloadPtr_t> res;
 
 		// check if Db Adapter is configured for writes
@@ -446,7 +441,6 @@ namespace CDBNPP {
 	}
 
 	Result<bool> PayloadAdapterDb::createDatabaseTables() {
-
 		Result<bool> res;
 
 		if ( !setAccessMode("admin") ) {
@@ -486,7 +480,6 @@ namespace CDBNPP {
 				ddl.unique("cdb_schemas_id", "id");
 			}
 			tr.commit();
-
 		} catch( std::exception const & e ) {
 			res.setMsg( "database exception: " + std::string(e.what()) );
 			return res;
@@ -610,7 +603,6 @@ namespace CDBNPP {
 	}
 
 	bool PayloadAdapterDb::setAccessMode( const std::string& mode ) {
-
 		if ( !hasAccess(mode) ) {
 			// cannot set access mode
 			return false;
@@ -642,7 +634,6 @@ namespace CDBNPP {
 
 	bool PayloadAdapterDb::connect( const std::string& dbtype, const std::string& host, int port,
 			const std::string& user, const std::string& pass, const std::string& dbname, const std::string& options ) {
-
 		if ( isConnected() ) {
 			disconnect();
 		}
@@ -716,7 +707,6 @@ namespace CDBNPP {
 		mPaths.clear();
 		// download tags and populate lookup map: tag ID => Tag obj
 		try {
-
 			std::string id, name, pid, tbname, schema_id;
 			int64_t ct, dt, mode;
 			soci::indicator ind;
@@ -727,7 +717,6 @@ namespace CDBNPP {
 			while (st.fetch()) {
 				mTags.insert({ id, std::make_shared<Tag>( id, name, pid,	tbname,	ct,	dt, mode, ind == i_ok ? schema_id : "" ) });
 			}
-
 		} catch ( std::exception const & e ) {
 			// database exception: " << e.what()
 			return false;
@@ -766,7 +755,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterDb::createTag( const std::string& path, int64_t tag_mode ) {
-
 		Result<std::string> res;
 
 		if ( !ensureMetadata() ) {
@@ -887,7 +875,6 @@ namespace CDBNPP {
 
 	Result<std::string> PayloadAdapterDb::createTag( const std::string& tag_id, const std::string& tag_name, const std::string& tag_pid,
 			const std::string& tag_tbname, int64_t tag_ct, int64_t tag_dt, int64_t tag_mode ) {
-
 		Result<std::string> res;
 
 		if ( !tag_id.size() ) {
@@ -951,7 +938,6 @@ namespace CDBNPP {
 	}
 
 	std::vector<std::string> PayloadAdapterDb::getTags( bool skipStructs ) {
-
 		std::vector<std::string> tags;
 
 		if ( !ensureMetadata() ) {

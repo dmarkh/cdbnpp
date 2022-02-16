@@ -1,5 +1,10 @@
 # CDBNPP - Conditions DataBase API library for NPP (C++)
 
+[![CodeFactor Grade](https://img.shields.io/codefactor/grade/github/dmarkh/cdbnpp?label=CodeFactor%20Code%20Quality)](https://www.codefactor.io/repository/github/dmarkh/cdbnpp)
+[![LGTM Grade](https://img.shields.io/lgtm/grade/cpp/github/dmarkh/cdbnpp?label=LGTM%20Code%20Quality)](https://lgtm.com/projects/g/dmarkh/cdbnpp/)
+[![GitHub](https://img.shields.io/github/license/dmarkh/cdbnpp)](https://github.com/dmarkh/cdbnpp/blob/master/LICENSE.txt)
+[![GitHub issues](https://img.shields.io/github/issues-raw/dmarkh/cdbnpp)](https://github.com/dmarkh/cdbnpp/issues)
+
 ## Intro
 CDBNPP is a general-purpose Conditions Database API library for C++, addressing conditions/calibrations data access requirements of HEP and NP experiments.
 
@@ -30,8 +35,8 @@ CDBNPP is distributed under the terms of [MIT License](https://en.wikipedia.org/
 - CMake 3.20+
 
 ### Libraries:
-- DB Adapter: SOCI - DB Abstraction Layer library, https://github.com/SOCI/soci
-- HTTP Adapter: libcurl
+- SOCI v4 or later, DB Abstraction Layer library, https://github.com/SOCI/soci
+- libcurl
 - nlohmann::json - header-only library, included in /contrib
 - jwt-cpp - header-only library, included in /contrib
 - valijson - header-only library, included in /contrib

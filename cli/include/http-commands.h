@@ -67,7 +67,6 @@ inline void http_payload_getbytime( const std::vector<std::string>& args ) {
 }
 
 inline void http_payload_set( const std::vector<std::string>& args ) {
-
   if ( args.size() < 4 ) {
     std::cerr << "ERROR: please provide arguments: <path> <file-name|uri> <beginTime|run> <endTime|seq>" << "\n";
     return;
@@ -126,7 +125,6 @@ inline void http_payload_set( const std::vector<std::string>& args ) {
   } else {
     std::cout << "payload was successfully uploaded, id: " << rc.get() << "\n";
   }
-
 }
 
 inline void http_tags_list( __attribute__ ((unused)) const std::vector<std::string>& args ) {
@@ -196,7 +194,6 @@ inline void http_struct_create( const std::vector<std::string>& args ) {
     std::cerr << "failed to create struct: " << args[1] << ", mode: " << args[2] << ", msg: " << res.msg() << "\n";
     return;
   }
-
 }
 
 inline void http_schema_set( const std::vector<std::string>& args ) {

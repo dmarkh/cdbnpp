@@ -22,7 +22,6 @@ namespace CDBNPP {
 	using ServiceS = Singleton<Service, CreateMeyers>;
 
 	class Service {
-
 		public:
 			Service() = default;
 			~Service() = default;
@@ -87,7 +86,6 @@ namespace CDBNPP {
 			Result<bool> resolveURI( SPayloadPtr_t& payload );
 
 		private:
-
 			bool validateConfigFile();
 
 			int64_t mEventTime{0};
@@ -105,7 +103,6 @@ namespace CDBNPP {
 			std::vector<IPayloadAdapterPtr_t> mEnabledAdapters{};
 
 			nlohmann::json mConfig{};
-
 	};
 
 

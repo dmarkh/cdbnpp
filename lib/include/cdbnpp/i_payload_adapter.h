@@ -19,9 +19,7 @@ namespace CDBNPP {
 	using PathToTimeMap_t = std::unordered_map<std::string,uint64_t>;
 
 	class IPayloadAdapter {
-
 		public:
-
 			IPayloadAdapter( const std::string& id ) : mId(id) {}
 			virtual ~IPayloadAdapter() = default;
 
@@ -56,10 +54,8 @@ namespace CDBNPP {
 			virtual void setConfig( nlohmann::json config ) { mConfig = config; }
 
 		protected:
-
 			std::string mId;
 			nlohmann::json mConfig{};
-
 	};
 
 } // namespace CDBNPP

@@ -14,7 +14,6 @@
 namespace CDBNPP {
 
 	class HttpResponse {
-
 		public:
 			long status_code{0};
 			std::string text{""};
@@ -37,7 +36,6 @@ namespace CDBNPP {
 
 		private:
 			HttpCurlHolderPtr_t mCurl;
-
 	}; // class HttpResponse
 
 } // namespace CDBNPP

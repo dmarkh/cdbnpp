@@ -13,7 +13,6 @@ namespace CDBNPP {
 
 	PayloadResults_t PayloadAdapterHttp::getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
-
 		// TODO: possible latency optimization: do bulk HTTP request here instead of many single requests
 
 		PayloadResults_t res;
@@ -47,7 +46,6 @@ namespace CDBNPP {
 
 	Result<SPayloadPtr_t> PayloadAdapterHttp::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
-
 		Result<SPayloadPtr_t> res;
 
 		if ( !ensureMetadata() ) {
@@ -147,14 +145,12 @@ namespace CDBNPP {
 
 			res = p;
 			return res;
-
 		} // loop over flavors
 
 		return res;
 	}
 
 	Result<std::string> PayloadAdapterHttp::setPayload( const SPayloadPtr_t& payload ) {
-
 		Result <std::string> res;
 
 		if ( !payload->ready() ) {
@@ -273,7 +269,6 @@ namespace CDBNPP {
 	}
 
 	Result<SPayloadPtr_t> PayloadAdapterHttp::prepareUpload( const std::string& path ) {
-
 		Result<SPayloadPtr_t> res;
 
 		// check if Http Adapter is configured for writes]
@@ -356,7 +351,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterHttp::createTag( const std::string& path, int64_t tag_mode ) {
-
 		Result<std::string> res;
 
 		if ( !ensureMetadata() ) {
@@ -487,7 +481,6 @@ namespace CDBNPP {
 	}
 
 	bool PayloadAdapterHttp::downloadMetadata() {
-
 		if ( !hasAccess("get") ) {
 			return false;
 		}
@@ -539,7 +532,6 @@ namespace CDBNPP {
 	}
 
 	std::vector<std::string> PayloadAdapterHttp::getTags( bool skipStructs ) {
-
 		if ( !ensureMetadata() ) {
 			return std::vector<std::string>();
 		}
@@ -570,7 +562,6 @@ namespace CDBNPP {
 	}
 
 	Result<bool> PayloadAdapterHttp::setTagSchema( const std::string& tag_path, const std::string& schema_json ) {
-
 		Result<bool> res;
 
 		if ( !schema_json.size() ) {
@@ -637,7 +628,6 @@ namespace CDBNPP {
 	}
 
 	Result<std::string> PayloadAdapterHttp::getTagSchema( const std::string& tag_path ) {
-
 		Result<std::string> res;
 
 		if ( !ensureMetadata() ) {
@@ -831,7 +821,6 @@ namespace CDBNPP {
 	}
 
 	std::string PayloadAdapterHttp::generateJWT( const std::string& access, uint64_t idx ) {
-
 		std::string user, pass;
 
 		try {
@@ -865,7 +854,6 @@ namespace CDBNPP {
 	}
 
 	void PayloadAdapterHttp::setHttpConfig() {
-
 		if ( mConfig.empty() || !mConfig.contains("adapters") || !mConfig["adapters"].contains("http") 
 				|| !mConfig["adapters"]["http"].contains("config") ) {
 			return;

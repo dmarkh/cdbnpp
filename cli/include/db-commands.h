@@ -7,7 +7,6 @@
 namespace CDBNPP {
 
 inline void db_payload_set( const std::vector<std::string>& args ) {
-
 	if ( args.size() < 4 ) {
 		std::cerr << "ERROR: please provide arguments: <path> <file-name|uri> <beginTime|run> <endTime|seq>" << "\n";
 		return;
@@ -66,7 +65,6 @@ inline void db_payload_set( const std::vector<std::string>& args ) {
 	} else {
 		std::cout << "payload was successfully uploaded, id: " << rc.get() << "\n";
 	}
-
 }
 
 inline void db_payload_getbyrun( const std::vector<std::string>& args ) {
@@ -100,7 +98,6 @@ inline void db_payload_getbyrun( const std::vector<std::string>& args ) {
 			std::cout << "got payload: " << p << std::endl;
 		}
 	}
-
 }
 
 inline void db_payload_getbytime( const std::vector<std::string>& args ) {
@@ -131,7 +128,6 @@ inline void db_payload_getbytime( const std::vector<std::string>& args ) {
 			std::cout << "got payload: " << p << std::endl;
 		}
 	}
-
 }
 
 inline void db_schema_get( const std::vector<std::string>& args ) {
@@ -180,7 +176,6 @@ inline void db_schema_set( const std::vector<std::string>& args ) {
 	} else {
 		std::cerr << "failed to set schema for " << args[1] << ": " << rc.msg() << std::endl;
 	}
-
 }
 
 inline void db_schema_drop( const std::vector<std::string>& args ) {
@@ -221,7 +216,6 @@ inline void db_struct_create( const std::vector<std::string>& args ) {
 	}
 
 	if ( res.valid() && args.size() >= 4 ) {
-
 		if ( !std::filesystem::exists( args[3] ) || !std::filesystem::is_regular_file( args[3] ) ) {
 			std::cerr << "schema file does not exist: " << args[3] << std::endl;
 			return;
@@ -246,7 +240,6 @@ inline void db_struct_create( const std::vector<std::string>& args ) {
 			return;
 		}
 	}
-
 }
 
 inline void db_tags_create( const std::vector<std::string>& args ) {

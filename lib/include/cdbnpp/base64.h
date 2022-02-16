@@ -30,7 +30,6 @@ namespace CDBNPP {
 
 	class base64 {
 		public:
-
 			static std::string encode(const std::string& data) {
 				static constexpr char sEncodingTable[] = {
 					'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -116,7 +115,6 @@ namespace CDBNPP {
 
 				return out;
 			}
-
 	};
 
 } // namespace CDBNPP

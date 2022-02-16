@@ -8,9 +8,7 @@
 namespace CDBNPP {
 
 	class PayloadAdapterDb : public IPayloadAdapter {
-
 		public:
-
 			PayloadAdapterDb();
 			virtual ~PayloadAdapterDb() = default;
 
@@ -48,7 +46,6 @@ namespace CDBNPP {
 			std::vector<std::string> getTags( bool skipStructs = false );
 
 		private:
-
 			// access
 			const std::string& getAccessMode() { return mAccessMode; }
 			bool setAccessMode( const std::string& mode );
