@@ -15,7 +15,6 @@ namespace CDBNPP {
 
 	using namespace soci;
 
-	std::mutex cdbnpp_db_metadata_mutex;  // protects mTags, mPaths
 	std::mutex cdbnpp_db_access_mutex;  // protects db calls, as SOCI is not thread-safe
 
 	PayloadAdapterDb::PayloadAdapterDb() : IPayloadAdapter("db") {}
@@ -760,7 +759,7 @@ namespace CDBNPP {
 			return false;
 		}
 
-		const std::lock_guard<std::mutex> lock(cdbnpp_db_metadata_mutex);
+		const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 		if ( mMetadataAvailable ) { return true; }
 
 		mTags.clear();
