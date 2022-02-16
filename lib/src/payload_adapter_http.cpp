@@ -1,6 +1,8 @@
 
 #include "cdbnpp/payload_adapter_http.h"
 
+#include <mutex>
+
 #include "cdbnpp/base64.h"
 #include "cdbnpp/json_schema.h"
 #include "cdbnpp/log.h"
@@ -8,6 +10,8 @@
 #include "cdbnpp/uuid.h"
 
 namespace CDBNPP {
+
+	std::mutex cdbnpp_http_metadata_mutex;  // protects mTags, mPaths
 
 	PayloadAdapterHttp::PayloadAdapterHttp() : IPayloadAdapter("http"), mHttpClient(new HttpClient) {}
 
@@ -483,11 +487,19 @@ namespace CDBNPP {
 		return res;
 	}
 
+	bool PayloadAdapterHttp::ensureMetadata() {
+		return mMetadataAvailable ? true : downloadMetadata();
+	}
+
 	bool PayloadAdapterHttp::downloadMetadata() {
 		if ( !hasAccess("get") ) {
 			return false;
 		}
 
+		const std::lock_guard<std::mutex> lock(cdbnpp_http_metadata_mutex);
+		if ( mMetadataAvailable ) { return true; }
+
+		mMetadataAvailable = false;
 		mTags.clear();
 		mPaths.clear();
 
@@ -529,7 +541,7 @@ namespace CDBNPP {
 			}
 		}
 
-		// TODO: filter tags and paths based on maxEntryTime
+		mMetadataAvailable = true;
 
 		return true;
 	}

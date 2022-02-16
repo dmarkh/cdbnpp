@@ -1,6 +1,8 @@
 
 #include "cdbnpp/payload_adapter_db.h"
 
+#include <mutex>
+
 #include "cdbnpp/base64.h"
 #include "cdbnpp/json_schema.h"
 #include "cdbnpp/http_client.h"
@@ -12,6 +14,9 @@
 namespace CDBNPP {
 
 	using namespace soci;
+
+	std::mutex cdbnpp_db_metadata_mutex;  // protects mTags, mPaths
+	std::mutex cdbnpp_db_access_mutex;  // protects db calls, as SOCI is not thread-safe
 
 	PayloadAdapterDb::PayloadAdapterDb() : IPayloadAdapter("db") {}
 
@@ -123,77 +128,86 @@ namespace CDBNPP {
 
 			if ( mode == 2 ) {
 				// fetch id, run, seq
-				try {
-					std::string query = "SELECT id, uri, bt, et, ct, dt, run, seq, fmt FROM cdb_iov_" + tbname + " "
-						+ "WHERE "
-						+ "flavor = :flavor "
-						+ "AND run = :run "
-						+ "AND seq = :seq "
-						+ ( maxEntryTime ? "AND ct <= :mt " : "" )
-						+ ( maxEntryTime ? "AND ( dt = 0 OR dt > :mt ) " : "" )
-						+ "ORDER BY ct DESC LIMIT 1";
 
-					if ( maxEntryTime ) {
-						mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
-							use( flavor, "flavor"), use( eventRun, "run" ), use( eventSeq, "seq" ), use( maxEntryTime, "mt" );
-					} else {
-						mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
-							use( flavor, "flavor"), use( eventRun, "run" ), use( eventSeq, "seq" );
+				{ // RAII scope block for the db access mutex
+					const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+					try {
+						std::string query = "SELECT id, uri, bt, et, ct, dt, run, seq, fmt FROM cdb_iov_" + tbname + " "
+							+ "WHERE "
+							+ "flavor = :flavor "
+							+ "AND run = :run "
+							+ "AND seq = :seq "
+							+ ( maxEntryTime ? "AND ct <= :mt " : "" )
+							+ ( maxEntryTime ? "AND ( dt = 0 OR dt > :mt ) " : "" )
+							+ "ORDER BY ct DESC LIMIT 1";
+
+						if ( maxEntryTime ) {
+							mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
+								use( flavor, "flavor"), use( eventRun, "run" ), use( eventSeq, "seq" ), use( maxEntryTime, "mt" );
+						} else {
+							mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
+								use( flavor, "flavor"), use( eventRun, "run" ), use( eventSeq, "seq" );
+						}
+					} catch( std::exception const & e ) {
+						res.setMsg( "database exception: " + std::string(e.what()) );
+						return res;
 					}
-				} catch( std::exception const & e ) {
-					res.setMsg( "database exception: " + std::string(e.what()) );
-					return res;
-				}
+				} // RAII scope block for the db access mutex
 
 				if ( !id.size() ) { continue; } // nothing found
 
 			} else if ( mode == 1 ) {
 				// fetch id, bt, et
-
-				try {
-					std::string query = "SELECT id, uri, bt, et, ct, dt, run, seq, fmt FROM cdb_iov_" + tbname + " "
-						+ "WHERE "
-						+ "flavor = :flavor "
-						+ "AND bt <= :et AND ( et = 0 OR et > :et ) "
-						+ ( maxEntryTime ? "AND ct <= :mt " : "" )
-						+ ( maxEntryTime ? "AND ( dt = 0 OR dt > :mt ) " : "" )
-						+ "ORDER BY bt DESC LIMIT 1";
-					if ( maxEntryTime ) {
-						mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
-							use( flavor, "flavor"), use( eventTime, "et" ), use( maxEntryTime, "mt" );
-					} else {
-						mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
-							use( flavor, "flavor"), use( eventTime, "et" );
-					}
-				} catch( std::exception const & e ) {
-					res.setMsg( "database exception: " + std::string(e.what()) );
-					return res;
-				}
-
-				if ( !id.size() ) { continue; } // nothing found
-
-				if ( et == 0 ) {
-					// if no endTime, do another query to establish endTime
+				{ // RAII scope block for the db access mutex
+					const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 					try {
-						std::string query = "SELECT bt FROM cdb_iov_" + tbname + " "
+						std::string query = "SELECT id, uri, bt, et, ct, dt, run, seq, fmt FROM cdb_iov_" + tbname + " "
 							+ "WHERE "
 							+ "flavor = :flavor "
-							+ "AND bt >= :et "
-							+ "AND ( et = 0 OR et < :et )"
+							+ "AND bt <= :et AND ( et = 0 OR et > :et ) "
 							+ ( maxEntryTime ? "AND ct <= :mt " : "" )
 							+ ( maxEntryTime ? "AND ( dt = 0 OR dt > :mt ) " : "" )
-							+ "ORDER BY bt ASC LIMIT 1";
+							+ "ORDER BY bt DESC LIMIT 1";
 						if ( maxEntryTime ) {
-							mSession->once << query, into(et),
+							mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
 								use( flavor, "flavor"), use( eventTime, "et" ), use( maxEntryTime, "mt" );
 						} else {
-							mSession->once << query, into(et),
+							mSession->once << query, into(id), into(uri), into(bt), into(et), into(ct), into(dt), into(run), into(seq), into(fmt),
 								use( flavor, "flavor"), use( eventTime, "et" );
 						}
 					} catch( std::exception const & e ) {
 						res.setMsg( "database exception: " + std::string(e.what()) );
 						return res;
 					}
+				} // RAII scope block for the db access mutex
+
+				if ( !id.size() ) { continue; } // nothing found
+
+				if ( et == 0 ) {
+					// if no endTime, do another query to establish endTime
+					{ // RAII scope block for the db access mutex
+						const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+						try {
+							std::string query = "SELECT bt FROM cdb_iov_" + tbname + " "
+								+ "WHERE "
+								+ "flavor = :flavor "
+								+ "AND bt >= :et "
+								+ "AND ( et = 0 OR et < :et )"
+								+ ( maxEntryTime ? "AND ct <= :mt " : "" )
+								+ ( maxEntryTime ? "AND ( dt = 0 OR dt > :mt ) " : "" )
+								+ "ORDER BY bt ASC LIMIT 1";
+							if ( maxEntryTime ) {
+								mSession->once << query, into(et),
+									use( flavor, "flavor"), use( eventTime, "et" ), use( maxEntryTime, "mt" );
+							} else {
+								mSession->once << query, into(et),
+									use( flavor, "flavor"), use( eventTime, "et" );
+							}
+						} catch( std::exception const & e ) {
+							res.setMsg( "database exception: " + std::string(e.what()) );
+							return res;
+						}
+					} // RAII scope block for the db access mutex
 					if ( !et ) {
 						et = std::numeric_limits<uint64_t>::max();
 					}
@@ -265,33 +279,37 @@ namespace CDBNPP {
 		}
 
 		// insert iov into cdb_iov_<table-name>, data into cdb_data_<table-name>
-		try {
-			int64_t dt = 0;
-			transaction tr( *mSession.get() );
 
-			if ( !payload->URI().size() && payload->dataSize() ) {
-				// if uri is empty and data is not empty, store data locally to the database
-				size_t data_size = payload->dataSize();
-				std::string data = base64::encode( payload->data() );
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 
-				CDBNPP_LOG_ERROR << "mAccessMode: " << mAccessMode << "\n";
+			try {
+				int64_t dt = 0;
+				transaction tr( *mSession.get() );
 
-				mSession->once << ( "INSERT INTO cdb_data_" + tbname + " ( id, pid, ct, dt, data, size ) VALUES ( :id, :pid, :ct, :dt, :data, :size )" )
-					,use(id), use(pid), use(ct), use(dt), use(data), use(data_size);
+				if ( !payload->URI().size() && payload->dataSize() ) {
+					// if uri is empty and data is not empty, store data locally to the database
+					size_t data_size = payload->dataSize();
+					std::string data = base64::encode( payload->data() );
 
-				payload->setURI( "db://" + tbname + "/" + id );
+					mSession->once << ( "INSERT INTO cdb_data_" + tbname + " ( id, pid, ct, dt, data, size ) VALUES ( :id, :pid, :ct, :dt, :data, :size )" )
+						,use(id), use(pid), use(ct), use(dt), use(data), use(data_size);
+
+					payload->setURI( "db://" + tbname + "/" + id );
+				}
+
+				std::string uri = payload->URI();
+				mSession->once << ( "INSERT INTO cdb_iov_" + tbname + " ( id, pid, flavor, ct, bt, et, dt, run, seq, uri, fmt ) VALUES ( :id, :pid, :flavor, :ct, :bt, :et, :dt, :run, :seq, :uri, :bin )" )
+					,use(id), use(pid), use(flavor), use(ct), use(bt), use(et), use(dt), use(run), use(seq), use(uri), use(fmt);
+
+				tr.commit();
+				res = id;
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
 			}
 
-			std::string uri = payload->URI();
-			mSession->once << ( "INSERT INTO cdb_iov_" + tbname + " ( id, pid, flavor, ct, bt, et, dt, run, seq, uri, fmt ) VALUES ( :id, :pid, :flavor, :ct, :bt, :et, :dt, :run, :seq, :uri, :bin )" )
-				,use(id), use(pid), use(flavor), use(ct), use(bt), use(et), use(dt), use(run), use(seq), use(uri), use(fmt);
-
-			tr.commit();
-			res = id;
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		} // RAII scope block for the db access mutex
 
 		return res;
 	}
@@ -331,12 +349,15 @@ namespace CDBNPP {
 		std::string id = payload->id();
 		sanitize_alnumdash(id);
 
-		try {
-			mSession->once << "UPDATE cdb_iov_" + tbname + " SET dt = :dt WHERE id = :id",
-				use(deactiveTime), use( id );
-		} catch ( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				mSession->once << "UPDATE cdb_iov_" + tbname + " SET dt = :dt WHERE id = :id",
+					use(deactiveTime), use( id );
+			} catch ( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
 		}
 
 		res = id;
@@ -431,12 +452,15 @@ namespace CDBNPP {
 			return res;
 		}
 
-		try {
-			mSession->once << "DELETE FROM cdb_schemas WHERE pid = :pid",
-				use(tag_pid);
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				mSession->once << "DELETE FROM cdb_schemas WHERE pid = :pid",
+					use(tag_pid);
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
 		}
 
 		res = true;
@@ -456,37 +480,40 @@ namespace CDBNPP {
 			return res;
 		}
 
-		try {
-			transaction tr( *mSession.get() );
-			// cdb_tags
-			{
-				soci::ddl_type ddl = mSession->create_table("cdb_tags");
-				ddl.column("id", soci::dt_string, 36 )("not null");
-				ddl.column("pid", soci::dt_string, 36 )("not null");
-				ddl.column("name", soci::dt_string, 128 )("not null");
-				ddl.column("ct", soci::dt_unsigned_long_long )("not null");
-				ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
-				ddl.column("mode", soci::dt_unsigned_long_long )("not null default 0"); // 0 = tag, 1 = struct bt,et; 2 = struct run,seq
-				ddl.column("tbname", soci::dt_string, 512 )("not null");
-				ddl.primary_key("cdb_tags_pk", "pid,name,dt");
-				ddl.unique("cdb_tags_id", "id");
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				transaction tr( *mSession.get() );
+				// cdb_tags
+				{
+					soci::ddl_type ddl = mSession->create_table("cdb_tags");
+					ddl.column("id", soci::dt_string, 36 )("not null");
+					ddl.column("pid", soci::dt_string, 36 )("not null");
+					ddl.column("name", soci::dt_string, 128 )("not null");
+					ddl.column("ct", soci::dt_unsigned_long_long )("not null");
+					ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
+					ddl.column("mode", soci::dt_unsigned_long_long )("not null default 0"); // 0 = tag, 1 = struct bt,et; 2 = struct run,seq
+					ddl.column("tbname", soci::dt_string, 512 )("not null");
+					ddl.primary_key("cdb_tags_pk", "pid,name,dt");
+					ddl.unique("cdb_tags_id", "id");
+				}
+				// cdb_schemas
+				{
+					soci::ddl_type ddl = mSession->create_table("cdb_schemas");
+					ddl.column("id", soci::dt_string, 36 )("not null");
+					ddl.column("pid", soci::dt_string, 36 )("not null");
+					ddl.column("ct", soci::dt_unsigned_long_long )("not null");
+					ddl.column("dt", soci::dt_unsigned_long_long )("null default 0");
+					ddl.column("data", soci::dt_string )("not null");
+					ddl.primary_key("cdb_schemas_pk", "pid,dt");
+					ddl.unique("cdb_schemas_id", "id");
+				}
+				tr.commit();
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
 			}
-			// cdb_schemas
-			{
-				soci::ddl_type ddl = mSession->create_table("cdb_schemas");
-				ddl.column("id", soci::dt_string, 36 )("not null");
-				ddl.column("pid", soci::dt_string, 36 )("not null");
-				ddl.column("ct", soci::dt_unsigned_long_long )("not null");
-				ddl.column("dt", soci::dt_unsigned_long_long )("null default 0");
-				ddl.column("data", soci::dt_string )("not null");
-				ddl.primary_key("cdb_schemas_pk", "pid,dt");
-				ddl.unique("cdb_schemas_id", "id");
-			}
-			tr.commit();
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		} // RAII scope block for the db access mutex
 
 		res = true;
 		return res;
@@ -505,49 +532,55 @@ namespace CDBNPP {
 			return res;
 		}
 
-		try {
-			transaction tr( *mSession.get() );
-			// cdb_iov_<tablename>
-			{
-				soci::ddl_type ddl = mSession->create_table("cdb_iov_"+tablename);
-				ddl.column("id", soci::dt_string, 36 )("not null");
-				ddl.column("pid", soci::dt_string, 36 )("not null");
-				ddl.column("flavor", soci::dt_string, 128 )("not null");
-				ddl.column("ct", soci::dt_unsigned_long_long )("not null");
-				ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
-				ddl.column("bt", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 0
-				ddl.column("et", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 0
-				ddl.column("run", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 1
-				ddl.column("seq", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 1
-				ddl.column("fmt", soci::dt_string, 36 )("not null"); // see Service::formats()
-				ddl.column("uri", soci::dt_string, 2048 )("not null");
-				ddl.primary_key("cdb_iov_"+tablename+"_pk", "pid,bt,run,seq,dt,flavor");
-				ddl.unique("cdb_iov_"+tablename+"_id", "id");
-			}
+		{ //RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 
-			mSession->once << "CREATE INDEX cdb_iov_" + tablename + "_ct ON cdb_iov_" + tablename + " (ct)";
-
-			if ( create_storage ) {
-				// cdb_data_<tablename>
+			try {
+				transaction tr( *mSession.get() );
+				// cdb_iov_<tablename>
 				{
-					soci::ddl_type ddl = mSession->create_table("cdb_data_"+tablename);
+					soci::ddl_type ddl = mSession->create_table("cdb_iov_"+tablename);
 					ddl.column("id", soci::dt_string, 36 )("not null");
 					ddl.column("pid", soci::dt_string, 36 )("not null");
+					ddl.column("flavor", soci::dt_string, 128 )("not null");
 					ddl.column("ct", soci::dt_unsigned_long_long )("not null");
 					ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
-					ddl.column("data", soci::dt_string )("not null");
-					ddl.column("size", soci::dt_unsigned_long_long )("not null default 0");
-					ddl.primary_key("cdb_data_"+tablename+"_pk", "id,pid,dt");
-					ddl.unique("cdb_data_"+tablename+"_id", "id");
+					ddl.column("bt", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 0
+					ddl.column("et", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 0
+					ddl.column("run", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 1
+					ddl.column("seq", soci::dt_unsigned_long_long )("not null default 0"); // used with mode = 1
+					ddl.column("fmt", soci::dt_string, 36 )("not null"); // see Service::formats()
+					ddl.column("uri", soci::dt_string, 2048 )("not null");
+					ddl.primary_key("cdb_iov_"+tablename+"_pk", "pid,bt,run,seq,dt,flavor");
+					ddl.unique("cdb_iov_"+tablename+"_id", "id");
 				}
-				mSession->once << "CREATE INDEX cdb_data_" + tablename + "_pid ON cdb_data_" + tablename + " (pid)";
-				mSession->once << "CREATE INDEX cdb_data_" + tablename + "_ct ON cdb_data_" + tablename + " (ct)";
+
+				mSession->once << "CREATE INDEX cdb_iov_" + tablename + "_ct ON cdb_iov_" + tablename + " (ct)";
+
+				if ( create_storage ) {
+					// cdb_data_<tablename>
+					{
+						soci::ddl_type ddl = mSession->create_table("cdb_data_"+tablename);
+						ddl.column("id", soci::dt_string, 36 )("not null");
+						ddl.column("pid", soci::dt_string, 36 )("not null");
+						ddl.column("ct", soci::dt_unsigned_long_long )("not null");
+						ddl.column("dt", soci::dt_unsigned_long_long )("not null default 0");
+						ddl.column("data", soci::dt_string )("not null");
+						ddl.column("size", soci::dt_unsigned_long_long )("not null default 0");
+						ddl.primary_key("cdb_data_"+tablename+"_pk", "id,pid,dt");
+						ddl.unique("cdb_data_"+tablename+"_id", "id");
+					}
+					mSession->once << "CREATE INDEX cdb_data_" + tablename + "_pid ON cdb_data_" + tablename + " (pid)";
+					mSession->once << "CREATE INDEX cdb_data_" + tablename + "_ct ON cdb_data_" + tablename + " (ct)";
+				}
+				tr.commit();
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
 			}
-			tr.commit();
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+
+		} // RAII scope block for the db access mutex
+
 		res = true;
 		return res;
 	}
@@ -563,17 +596,20 @@ namespace CDBNPP {
 			return tables;
 		}
 
-		try {
-			std::string name;
-			soci::statement st = (mSession->prepare_table_names(), into(name));
-			st.execute();
-			while (st.fetch()) {
-				tables.push_back( name );
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				std::string name;
+				soci::statement st = (mSession->prepare_table_names(), into(name));
+				st.execute();
+				while (st.fetch()) {
+					tables.push_back( name );
+				}
+			} catch( std::exception const & e ) {
+				// database exception: " << e.what()
+				tables.clear();
 			}
-		} catch( std::exception const & e ) {
-			// database exception: " << e.what()
-			tables.clear();
-		}
+		} // RAII scope block for the db access mutex
 
 		return tables;
 	}
@@ -593,15 +629,19 @@ namespace CDBNPP {
 			return res;
 		}
 
-		try {
-			for ( const auto& tbname : tables ) {
-				mSession->drop_table( tbname );
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				for ( const auto& tbname : tables ) {
+					mSession->drop_table( tbname );
+				}
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
 			}
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
-		res = true;
+			res = true;
+		} // RAII scope block for the db access mutex
+
 		return res;
 	}
 
@@ -626,13 +666,16 @@ namespace CDBNPP {
 
 	void PayloadAdapterDb::disconnect() {
 		if ( !isConnected() ) { return; }
-		try {
-			mSession->close();
-			mIsConnected = false;
-			mDbType = "";
-		} catch ( std::exception const & e ) {
-			// database exception, e.what()
-		}
+		{ // RAII block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+			try {
+				mSession->close();
+				mIsConnected = false;
+				mDbType = "";
+			} catch ( std::exception const & e ) {
+				// database exception, e.what()
+			}
+		} // RAII block for the db access mutex
 	}
 
 	bool PayloadAdapterDb::connect( const std::string& dbtype, const std::string& host, int port,
@@ -641,28 +684,34 @@ namespace CDBNPP {
 			disconnect();
 		}
 
-		if ( mSession == nullptr ) {
-			mSession = std::make_shared<soci::session>();
-		}
+		{ // RAII block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 
-		std::string connect_string{
-			dbtype + "://" + ( host.size() ? "host=" + host : "")
-				+ ( port > 0 ? " port=" + std::to_string(port) : "" )
-				+ ( user.size() ? " user=" + user : "" )
-				+ ( pass.size() ? " password=" + pass : "" )
-				+ ( dbname.size() ? " dbname=" + dbname : "" )
-				+ ( options.size() ? " " + options : "" )
-		};
+			if ( mSession == nullptr ) {
+				mSession = std::make_shared<soci::session>();
+			}
 
-		try {
-			mSession->open( connect_string );
-		} catch ( std::exception const & e ) {
-			// database exception: " << e.what()
-			return false;
-		}
+			std::string connect_string{
+				dbtype + "://" + ( host.size() ? "host=" + host : "")
+					+ ( port > 0 ? " port=" + std::to_string(port) : "" )
+					+ ( user.size() ? " user=" + user : "" )
+					+ ( pass.size() ? " password=" + pass : "" )
+					+ ( dbname.size() ? " dbname=" + dbname : "" )
+					+ ( options.size() ? " " + options : "" )
+			};
 
-		mIsConnected = true;
-		mDbType = dbtype;
+			try {
+				mSession->open( connect_string );
+			} catch ( std::exception const & e ) {
+				// database exception: " << e.what()
+				return false;
+			}
+
+			mIsConnected = true;
+			mDbType = dbtype;
+
+		} // RAII scope block for the db access mutex
+
 		return true;
 	}
 
@@ -702,10 +751,18 @@ namespace CDBNPP {
 		return connect( dbtype, host, port, user, pass, dbname, options );
 	}
 
+	bool PayloadAdapterDb::ensureMetadata() {
+		return mMetadataAvailable ? true : downloadMetadata();
+	}
+
 	bool PayloadAdapterDb::downloadMetadata() {
 		if ( !ensureConnection() ) {
 			return false;
 		}
+
+		const std::lock_guard<std::mutex> lock(cdbnpp_db_metadata_mutex);
+		if ( mMetadataAvailable ) { return true; }
+
 		mTags.clear();
 		mPaths.clear();
 		// download tags and populate lookup map: tag ID => Tag obj
@@ -864,15 +921,19 @@ namespace CDBNPP {
 			return res;
 		}
 
-		try {
-			mSession->once << "UPDATE cdb_tags SET dt = :dt WHERE id = :id",
-				use(deactiveTime), use(tag_id);
-		} catch ( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
 
-		res = tag_id;
+			try {
+				mSession->once << "UPDATE cdb_tags SET dt = :dt WHERE id = :id",
+					use(deactiveTime), use(tag_id);
+			} catch ( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+			res = tag_id;
+		} // RAII scope block for the db access mutex
+
 		return res;
 	}
 
@@ -910,14 +971,19 @@ namespace CDBNPP {
 			return res;
 		}
 
-		// insert new tag into the database
-		try {
-			mSession->once << "INSERT INTO cdb_tags ( id, name, pid, tbname, ct, dt, mode ) VALUES ( :id, :name, :pid, :tbname, :ct, :dt, :mode ) ",
-				use(tag_id), use(tag_name), use(tag_pid), use(tag_tbname), use(tag_ct), use(tag_dt), use(tag_mode);
-		} catch ( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+
+			// insert new tag into the database
+			try {
+				mSession->once << "INSERT INTO cdb_tags ( id, name, pid, tbname, ct, dt, mode ) VALUES ( :id, :name, :pid, :tbname, :ct, :dt, :mode ) ",
+					use(tag_id), use(tag_name), use(tag_pid), use(tag_tbname), use(tag_ct), use(tag_dt), use(tag_mode);
+			} catch ( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+
+		} // RAII scope block for the db access mutex
 
 		// if it is a struct, create IOV + Data tables
 		if ( tag_tbname.size() ) {
@@ -1017,12 +1083,17 @@ namespace CDBNPP {
 
 		std::string storage_name = tbparts[0], id = tbparts[1], data;
 
-		try {
-			mSession->once << ("SELECT data FROM cdb_data_" + storage_name + " WHERE id = :id"), into(data), use( id );
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+
+			try {
+				mSession->once << ("SELECT data FROM cdb_data_" + storage_name + " WHERE id = :id"), into(data), use( id );
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+
+		} // RAII scope lock for the db access mutex
 
 		if ( !data.size() ) {
 			res.setMsg("no data");
@@ -1060,12 +1131,17 @@ namespace CDBNPP {
 		std::string pid = tagit->second->id();
 
 		std::string schema{""};
-		try {
-			mSession->once << "SELECT data FROM cdb_schemas WHERE pid = :pid ", into(schema), use(pid);
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+
+			try {
+				mSession->once << "SELECT data FROM cdb_schemas WHERE pid = :pid ", into(schema), use(pid);
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+		} // RAII scope block for the db access mutex
 
 		if ( schema.size() ) {
 			res = schema;
@@ -1215,12 +1291,19 @@ namespace CDBNPP {
 		}
 
 		std::string existing_id = "";
-		try {
-			mSession->once << "SELECT id FROM cdb_schemas WHERE pid = :pid ", into(existing_id), use(tag_pid);
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+
+		{ // RAII scope block for the db access schema
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+
+			try {
+				mSession->once << "SELECT id FROM cdb_schemas WHERE pid = :pid ", into(existing_id), use(tag_pid);
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+
+		} // RAII scope block for the db access schema
+
 		if ( existing_id.size() ) {
 			res.setMsg( "cannot set schema as it already exists for " + sanitized_path );
 			return res;
@@ -1257,16 +1340,21 @@ namespace CDBNPP {
 			return res;
 		}
 
-		// insert schema into cdb_schemas table
-		try {
-			std::string schema_id = generate_uuid(), data = schema_json;
-			long long ct = 0, dt = 0;
-			mSession->once << "INSERT INTO cdb_schemas ( id, pid, data, ct, dt ) VALUES( :schema_id, :pid, :data, :ct, :dt )",
-				use(schema_id), use(tag_pid), use(data), use(ct), use(dt);
-		} catch( std::exception const & e ) {
-			res.setMsg( "database exception: " + std::string(e.what()) );
-			return res;
-		}
+		{ // RAII scope block for the db access mutex
+			const std::lock_guard<std::mutex> lock(cdbnpp_db_access_mutex);
+
+			// insert schema into cdb_schemas table
+			try {
+				std::string schema_id = generate_uuid(), data = schema_json;
+				long long ct = 0, dt = 0;
+				mSession->once << "INSERT INTO cdb_schemas ( id, pid, data, ct, dt ) VALUES( :schema_id, :pid, :data, :ct, :dt )",
+					use(schema_id), use(tag_pid), use(data), use(ct), use(dt);
+			} catch( std::exception const & e ) {
+				res.setMsg( "database exception: " + std::string(e.what()) );
+				return res;
+			}
+		} // RAII scope block for the db access mutex
+
 		res = true;
 		return res;
 	}

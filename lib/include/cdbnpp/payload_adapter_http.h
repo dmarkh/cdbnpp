@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include <nlohmann/json.hpp>
@@ -57,7 +59,7 @@ namespace CDBNPP {
 					&& mConfig["adapters"]["http"][a].is_array()
 					&& mConfig["adapters"]["http"][a].size() > 0;
 			}
-      bool ensureMetadata() { if ( mTags.size() ) { return true; }; return downloadMetadata(); }
+      bool ensureMetadata();
 			bool downloadMetadata();
 			std::string generateJWT( const std::string& access = "get", uint64_t idx = 0 );
 
@@ -66,6 +68,7 @@ namespace CDBNPP {
 			HttpResponse makeGetRequest(  const std::string& access, const std::string& url );
 			HttpResponse makePostRequest( const std::string& access, const std::string& url, const HttpPostParams_t& params );
 
+			std::atomic<bool> mMetadataAvailable{false};
       IdToTag_t mTags{};
       PathToTag_t mPaths{};
 

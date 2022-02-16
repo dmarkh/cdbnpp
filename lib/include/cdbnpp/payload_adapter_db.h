@@ -2,6 +2,8 @@
 
 #include <soci/soci.h>
 
+#include <atomic>
+
 #include "cdbnpp/i_payload_adapter.h"
 #include "cdbnpp/tag.h"
 
@@ -64,7 +66,7 @@ namespace CDBNPP {
 			bool ensureConnection() { if ( isConnected() ) { return true; }; return reconnect(); }
 
 			// metadata
-			bool ensureMetadata() { if ( mTags.size() ) { return true; }; return downloadMetadata(); }
+			bool ensureMetadata();
 			bool downloadMetadata(); // download tags and schemas into internal maps
 
 			Result<bool> createIOVDataTables( const std::string& tablename, bool create_storage = true );
@@ -74,6 +76,8 @@ namespace CDBNPP {
 			bool mIsConnected{false};
 			std::string mAccessMode{"get"};
 			std::string mDbType{};
+
+			std::atomic<bool> mMetadataAvailable{false};
 			IdToTag_t mTags{};
 			PathToTag_t mPaths{};
 			std::shared_ptr<soci::session> mSession;
