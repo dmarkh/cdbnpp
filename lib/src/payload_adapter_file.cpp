@@ -36,6 +36,16 @@ namespace CDBNPP {
 			return res;
 		}
 
+		if ( !directory.size() ) {
+			res.setMsg( "request does not specify path: " + path );
+			return res;
+		}
+
+		if ( !structName.size() ) {
+			res.setMsg( "request does not specify structName: " + path );
+			return res;
+		}
+
 		std::string dir = std::filesystem::current_path().string()
 			+ "/"	+ config().value("dirname",".CDBNPP") + "/" + directory;
 
@@ -44,18 +54,13 @@ namespace CDBNPP {
 			return res;
 		}
 
+		if ( !std::filesystem::exists( dir + "/" + structName ) ) {
+			res.setMsg( "struct directory does not exist: " + dir + "/" + structName );
+			return res;
+		}
+
 		if ( !service_flavors.size() && !flavors.size() ) {
 			res.setMsg( "request does not specify flavor, path: " + path );
-			return res;
-		}
-
-		if ( !directory.size() ) {
-			res.setMsg( "request does not specify path: " + path );
-			return res;
-		}
-
-		if ( !structName.size() ) {
-			res.setMsg( "request does not specify structName: " + path );
 			return res;
 		}
 
@@ -73,11 +78,10 @@ namespace CDBNPP {
 
 		for ( const auto& flavor : ( flavors.size() ? flavors : service_flavors ) ) {
 			// iterate over fs files, find and return one that fits
-			for ( const auto& dir_entry : std::filesystem::directory_iterator{dir} ) {
+			for ( const auto& dir_entry : std::filesystem::directory_iterator{ dir + "/" + structName } ) {
 				if ( !dir_entry.is_regular_file() ) { continue; }
-
 				auto [
-					file_structName, file_flavor,
+					file_flavor,
 					file_ct, file_bt,	file_et, file_dt,
 					file_run,	file_seq,
 					file_is_binary,	file_is_valid
@@ -85,9 +89,6 @@ namespace CDBNPP {
 
 				// skip if filename was not properly decoded
 				if ( !file_is_valid ) { continue; }
-
-				// skip if struct name does not match
-				if ( structName != file_structName ) { continue; }
 
 				// check if decoded flavor does not match
 				if ( flavor != file_flavor ) { continue; }
@@ -106,10 +107,10 @@ namespace CDBNPP {
 
 				// ok, this payload matches
 				SPayloadPtr_t pld = std::make_shared<Payload>(
-						generate_uuid(), uuid_from_str( directory + "/" + file_structName ),
-						file_flavor, file_structName, directory,
+						generate_uuid(), uuid_from_str( directory ),
+						file_flavor, structName, directory,
 						file_ct, file_bt,	file_et, file_dt, file_run, file_seq
-						);
+					);
 
 				pld->setURI( std::string("file://") + dir_entry.path().string() );
 
@@ -154,6 +155,7 @@ namespace CDBNPP {
 		trim( directory, "/ \n\r\t\v" );
 		sanitize_alnumslash( directory );
 		path += directory;
+		path += "/" + payload->structName();
 
 		std::string schema_path = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/.schemas";
@@ -188,8 +190,7 @@ namespace CDBNPP {
 		// format: <structName>.<flavor>.c<time>_b<time>_e<time>_d<time>.dat
 
 		std::string filename = path
-			+ "/"	+ sanitize_alnumslash( payload->structName() )
-			+ "."	+ sanitize_alnum( payload->flavor() ) + ".";
+			+ "/"	+ sanitize_alnum( payload->flavor() ) + ".";
 
 		std::vector<std::string> chunks;
 
@@ -267,6 +268,14 @@ namespace CDBNPP {
 			return res;
 		}
 
+		std::string complete_path = root_path + "/" + directory + "/" + structName;
+		if ( !std::filesystem::exists( complete_path ) ) {
+			if ( !std::filesystem::create_directories( complete_path ) ) {
+				res.setMsg( "cannot create directory = " + complete_path );
+				return res;
+			}
+		}
+
 		SPayloadPtr_t p = std::make_shared<Payload>();
 
 		p->setId( generate_uuid() );
@@ -289,11 +298,6 @@ namespace CDBNPP {
 	Result<std::string> PayloadAdapterFile::createTag( const std::string& path, int64_t tag_mode ) {
 		Result<std::string> res;
 
-		if ( tag_mode > 0 ) {
-			res.setMsg( "no need to create a directory for a struct" );
-			return res;
-		}
-
 		std::string sanitized_path = path;
 		trim( sanitized_path );
 		sanitize_alnumslash( sanitized_path );
@@ -310,16 +314,12 @@ namespace CDBNPP {
 			return res;
 		}
 
-		// skip parent check, we may really want to create full path here, for convenience
-
 		std::string new_path = root_path + "/" + sanitized_path;
 		if ( !std::filesystem::create_directories( new_path ) ) {
 			res.setMsg( "cannot create directory = " + new_path );
 			return res;
 		}
-		// tag directory was successfully created
 		res = uuid_from_str( sanitized_path );
-
 		return res;
 	}
 
@@ -347,14 +347,14 @@ namespace CDBNPP {
 	}
 
 	DecodedFileNameTuple PayloadAdapterFile::decodeFilename( const std::string& filename ) {
-		// file format: <structName>.<flavor>.c<datetime>_b<datetime>_e<datetime>_d<datetime>_r<runnumber>.dat
-		std::string structName, flavor;
+		// file format: <flavor>.c<datetime>_b<datetime>_e<datetime>_d<datetime>_r<runnumber>.dat
+		std::string flavor;
 		int64_t createTime = 0, beginTime = 0, endTime = 0, deactiveTime = 0;
 		int64_t run = 0, seq = 0, is_binary = 0;
 
 		if ( !filename.size() ) {
 			// empty filename provided => return empty tuple
-			return std::make_tuple( structName, flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, false );
+			return std::make_tuple( flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, false );
 		}
 
 		// get structName, flavor, timestamps, extension
@@ -365,16 +365,15 @@ namespace CDBNPP {
 		dparts.pop_back();
 		string_to_lower_case( extension );
 
-		if ( dparts.size() < 3 ) {
+		if ( dparts.size() < 2 ) {
 			// filename is not formatted properly => return empty tuple
-			return std::make_tuple( structName, flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, false );
+			return std::make_tuple( flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, false );
 		}
 
-		structName = dparts[0];
-		flavor = dparts[1];
+		flavor = dparts[0];
 
 		// parse timestamps and run number
-		std::vector<std::string> parts = explode( dparts.back(), '_' );
+		std::vector<std::string> parts = explode( dparts[1], '_' );
 
 		if ( parts.size() > 0 ) {
 			for ( const auto& part : parts ) {
@@ -402,7 +401,7 @@ namespace CDBNPP {
 			is_binary = 1;
 		}
 
-		return std::make_tuple( structName, flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, true );
+		return std::make_tuple( flavor, createTime, beginTime, endTime, deactiveTime, run, seq, is_binary, true );
 	}
 
 	Result<std::string> PayloadAdapterFile::getTagSchema( const std::string& tag_path ) {

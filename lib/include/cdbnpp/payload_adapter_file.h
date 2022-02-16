@@ -4,7 +4,7 @@
 
 namespace CDBNPP {
 
-	using DecodedFileNameTuple = std::tuple<std::string, std::string, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, int64_t, bool>;
+	using DecodedFileNameTuple = std::tuple<std::string /* flavor */, int64_t /* ct */, int64_t /* bt */, int64_t /* et */, int64_t /* dt */, int64_t /* run */, int64_t /* seq */, int64_t /* is_binary */, bool /* is_valid */>;
 
 	class PayloadAdapterFile : public IPayloadAdapter {
 		public:
