@@ -23,9 +23,9 @@ namespace CDBNPP {
 
 		std::set<std::string> unfolded_paths{};
 		for ( const auto& path : paths ) {
-      std::vector<std::string> parts = explode( path, ":" );
-      std::string flavor = parts.size() == 2 ? parts[0] : "";
-      std::string unflavored_path = parts.size() == 2 ? parts[1] : parts[0];
+			std::vector<std::string> parts = explode( path, ":" );
+			std::string flavor = parts.size() == 2 ? parts[0] : "";
+			std::string unflavored_path = parts.size() == 2 ? parts[1] : parts[0];
 			if ( mPaths.count(unflavored_path) == 0 ) {
 				for ( const auto& [ key, value ] : mPaths ) {
 					if ( string_starts_with( key, unflavored_path ) && value->mode() > 0 ) {
@@ -79,15 +79,15 @@ namespace CDBNPP {
 		}
 
 		std::string dirpath = directory + "/" + structName;
-    // check for path-specific maxEntryTime overrides
-    if ( maxEntryTimeOverrides.size() ) {
-      for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
-        if ( string_starts_with( dirpath, opath ) ) {
-          maxEntryTime = otime;
-          break;
-        }
-      }
-    }
+		// check for path-specific maxEntryTime overrides
+		if ( maxEntryTimeOverrides.size() ) {
+			for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
+				if ( string_starts_with( dirpath, opath ) ) {
+					maxEntryTime = otime;
+					break;
+				}
+			}
+		}
 
 		// get tag
 		auto tagit = mPaths.find( dirpath );
@@ -933,7 +933,7 @@ namespace CDBNPP {
 				if ( schema_str.valid() ) {
 					output["schemas"].push_back({
 							{ "id",value->schema() }, { "pid", value->id() }, { "path", value->path() }, { "data", schema_str.get() }
-						});
+							});
 				}
 			}
 		}

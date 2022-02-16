@@ -20,22 +20,22 @@ namespace CDBNPP {
 		std::string dir = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/";
 
-    std::set<std::string> unfolded_paths{};
-    for ( const auto& path : paths ) {
+		std::set<std::string> unfolded_paths{};
+		for ( const auto& path : paths ) {
 			std::vector<std::string> parts = explode( path, ":" );
 			std::string flavor = parts.size() == 2 ? parts[0] : "";
 			std::string unflavored_path = parts.size() == 2 ? parts[1] : parts[0];
 			if ( !std::filesystem::is_directory( dir + unflavored_path ) ) {
-	    	for ( auto const& dir_entry : std::filesystem::recursive_directory_iterator( dir ) ) {
+				for ( auto const& dir_entry : std::filesystem::recursive_directory_iterator( dir ) ) {
 					if ( !dir_entry.is_directory() ) { continue; }
 					if ( string_starts_with( dir_entry.path().string(), dir + unflavored_path ) ) {
 						unfolded_paths.insert( ( flavor.size() ? (flavor + ":") : "" ) + dir_entry.path().string().substr( dir.size() ) );
 					}
-    	  }
-      } else {
-        unfolded_paths.insert( path );
-      }
-    }
+				}
+			} else {
+				unfolded_paths.insert( path );
+			}
+		}
 
 		for ( const auto& path : unfolded_paths ) {
 			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
@@ -89,15 +89,15 @@ namespace CDBNPP {
 
 		std::string dirpath = directory + "/" + structName;
 
-    // check for path-specific maxEntryTime overrides
-    if ( maxEntryTimeOverrides.size() ) {
-      for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
-        if ( string_starts_with( dirpath, opath ) ) {
-          maxEntryTime = otime;
-          break;
-        }
-      }
-    }
+		// check for path-specific maxEntryTime overrides
+		if ( maxEntryTimeOverrides.size() ) {
+			for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
+				if ( string_starts_with( dirpath, opath ) ) {
+					maxEntryTime = otime;
+					break;
+				}
+			}
+		}
 
 		for ( const auto& flavor : ( flavors.size() ? flavors : service_flavors ) ) {
 			// iterate over fs files, find and return one that fits
@@ -133,7 +133,7 @@ namespace CDBNPP {
 						generate_uuid(), uuid_from_str( directory ),
 						file_flavor, structName, directory,
 						file_ct, file_bt,	file_et, file_dt, file_run, file_seq
-					);
+						);
 
 				pld->setURI( std::string("file://") + dir_entry.path().string() );
 

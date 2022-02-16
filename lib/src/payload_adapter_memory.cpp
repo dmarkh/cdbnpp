@@ -49,15 +49,15 @@ namespace CDBNPP {
 		}
 
 		std::string dirpath = directory + "/" + structName;
-    // check for path-specific maxEntryTime overrides
-    if ( maxEntryTimeOverrides.size() ) {
-      for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
-        if ( string_starts_with( dirpath, opath ) ) {
-          maxEntryTime = otime;
-          break;
-        }
-      }
-    }
+		// check for path-specific maxEntryTime overrides
+		if ( maxEntryTimeOverrides.size() ) {
+			for ( const auto& [ opath, otime ] : maxEntryTimeOverrides ) {
+				if ( string_starts_with( dirpath, opath ) ) {
+					maxEntryTime = otime;
+					break;
+				}
+			}
+		}
 
 		for ( const auto& flavor : ( flavors.size() ? flavors : service_flavors ) ) {
 			// "directory = directory" because clang cannot capture it, it is a c++ standard issue until c++20
@@ -68,13 +68,13 @@ namespace CDBNPP {
 							&& ( maxEntryTime > 0 && item->deactiveTime() > 0 ? item->deactiveTime() < maxEntryTime : true )
 							&& (
 								( item->mode() == 1
-									&& item->beginTime() <= eventTime && item->endTime() >= eventTime 
+								  && item->beginTime() <= eventTime && item->endTime() >= eventTime 
 								) || ( item->mode() == 2
 									&& item->run() == run
 									&& item->seq() == seq
-								)
-							)
-					  );
+								     )
+							   )
+					       );
 					});
 			if ( it == mCache.end() ) {	continue;	}
 			res = SPayloadPtr_t(*it);
