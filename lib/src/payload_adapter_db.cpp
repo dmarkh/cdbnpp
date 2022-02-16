@@ -880,6 +880,11 @@ namespace CDBNPP {
 			const std::string& tag_tbname, int64_t tag_ct, int64_t tag_dt, int64_t tag_mode ) {
 		Result<std::string> res;
 
+		if ( !ensureMetadata() ) {
+			res.setMsg( "db adapter cannot download metadata" );
+			return res;
+		}
+
 		if ( !tag_id.size() ) {
 			res.setMsg( "cannot create new tag: empty tag id provided" );
 			return res;
