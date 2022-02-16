@@ -15,10 +15,29 @@ namespace CDBNPP {
 
 	PayloadResults_t PayloadAdapterFile::getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
-
 		PayloadResults_t res;
 
-		for ( const auto& path : paths ) {
+		std::string dir = std::filesystem::current_path().string()
+			+ "/" + config().value("dirname",".CDBNPP") + "/";
+
+    std::set<std::string> unfolded_paths{};
+    for ( const auto& path : paths ) {
+			std::vector<std::string> parts = explode( path, ":" );
+			std::string flavor = parts.size() == 2 ? parts[0] : "";
+			std::string unflavored_path = parts.size() == 2 ? parts[1] : parts[0];
+			if ( !std::filesystem::is_directory( dir + unflavored_path ) ) {
+	    	for ( auto const& dir_entry : std::filesystem::recursive_directory_iterator( dir ) ) {
+					if ( !dir_entry.is_directory() ) { continue; }
+					if ( string_starts_with( dir_entry.path().string(), dir + unflavored_path ) ) {
+						unfolded_paths.insert( ( flavor.size() ? (flavor + ":") : "" ) + dir_entry.path().string().substr( dir.size() ) );
+					}
+    	  }
+      } else {
+        unfolded_paths.insert( path );
+      }
+    }
+
+		for ( const auto& path : unfolded_paths ) {
 			Result<SPayloadPtr_t> rc = getPayload( path, flavors, maxEntryTimeOverrides, maxEntryTime, eventTime, run, seq );
 			if ( rc.valid() ) {
 				SPayloadPtr_t p = rc.get();

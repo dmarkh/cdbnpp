@@ -25,10 +25,13 @@ namespace CDBNPP {
 
 		std::set<std::string> unfolded_paths{};
 		for ( const auto& path : paths ) {
-			if ( mPaths.count(path) == 0 ) {
+      std::vector<std::string> parts = explode( path, ":" );
+      std::string flavor = parts.size() == 2 ? parts[0] : "";
+      std::string unflavored_path = parts.size() == 2 ? parts[1] : parts[0];
+			if ( mPaths.count(unflavored_path) == 0 ) {
 				for ( const auto& [ key, value ] : mPaths ) {
-					if ( string_starts_with( key, path ) && value->mode() > 0 ) {
-						unfolded_paths.insert( key );
+					if ( string_starts_with( key, unflavored_path ) && value->mode() > 0 ) {
+						unfolded_paths.insert( ( flavor.size() ? ( flavor + ":" ) : "" ) + key );
 					}
 				}
 			} else {
