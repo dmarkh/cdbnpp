@@ -2,13 +2,15 @@
 #include "cdbnpp/payload_adapter_memory.h"
 
 #include <algorithm>
-#include <mutex>
+#include <shared_mutex>
 
 #include "cdbnpp/log.h"
 
 namespace CDBNPP {
 
-	std::mutex cdbnpp_memory_mutex;  // protects memory cache
+	std::shared_mutex cdbnpp_memory_mutex;
+	typedef std::unique_lock<std::shared_mutex>  WriteLock;
+	typedef std::shared_lock<std::shared_mutex>  ReadLock;
 
 	PayloadAdapterMemory::PayloadAdapterMemory() : IPayloadAdapter("memory") {}
 
@@ -28,7 +30,7 @@ namespace CDBNPP {
 	Result<SPayloadPtr_t> PayloadAdapterMemory::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
 		Result<SPayloadPtr_t> res;
-		const std::lock_guard<std::mutex> lock(cdbnpp_memory_mutex);
+		ReadLock lock(cdbnpp_memory_mutex);
 
 		auto [ flavors, directory, structName, is_path_valid ] = Payload::decodePath( path );
 
@@ -90,13 +92,13 @@ namespace CDBNPP {
 
 	Result<std::string> PayloadAdapterMemory::setPayload( const SPayloadPtr_t& payload ) {
 		Result<std::string> res;
-		const std::lock_guard<std::mutex> lock(cdbnpp_memory_mutex);
 
 		if ( !payload->ready() || payload->endTime() == 0 ) {
 			res.setMsg("payload is not ready or endTime is not set");
 			return res;
 		}
 
+		WriteLock lock(cdbnpp_memory_mutex);
 		// add to cache
 		mCache.push_back( payload );
 		mCacheSizeBytes += payload->dataSize();
@@ -137,9 +139,12 @@ namespace CDBNPP {
 	}
 
 	bool PayloadAdapterMemory::maintainCacheWithinLimits() {
+		ReadLock r_lock(cdbnpp_memory_mutex);
 		if ( mCache.size() <= 1 ) { return false; }
 		if ( mCacheSizeBytes < mCacheSizeLimitHi && mCache.size() < mCacheItemLimitHi ) { return false; }
+		r_lock.unlock();
 		// if cache size in bytes or in item count is bigger than HI limit, bring it down to LO limit
+		WriteLock w_lock(cdbnpp_memory_mutex);
 		while ( mCacheSizeBytes > mCacheSizeLimitLo || mCache.size() > mCacheItemLimitLo ) {
 			size_t sz = mCache.front()->dataSize();
 			mCache.pop_front();
