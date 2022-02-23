@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <shared_mutex>
 
 #include "npp/util/json_schema.h"
 #include "npp/util/log.h"
@@ -14,11 +15,17 @@ namespace CDB {
 
 	using namespace NPP::Util;
 
+	std::shared_mutex cdbnpp_file_mutex;
+  typedef std::unique_lock<std::shared_mutex>  FileWriteLock;
+  typedef std::shared_lock<std::shared_mutex>  FileReadLock;
+
 	PayloadAdapterFile::PayloadAdapterFile() : IPayloadAdapter("file") {}
 
 	PayloadResults_t PayloadAdapterFile::getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t run, int64_t seq ) {
 		PayloadResults_t res;
+
+		FileReadLock lock(cdbnpp_file_mutex);
 
 		std::string dir = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/";
@@ -54,6 +61,8 @@ namespace CDB {
 	Result<SPayloadPtr_t> PayloadAdapterFile::getPayload( const std::string& path, const std::vector<std::string>& service_flavors,
 			const PathToTimeMap_t& maxEntryTimeOverrides, int64_t maxEntryTime, int64_t eventTime, int64_t eventRun, int64_t eventSeq ) {
 		Result<SPayloadPtr_t> res;
+
+		FileReadLock lock(cdbnpp_file_mutex);
 
 		auto [ flavors, directory, structName, is_path_valid ] = Payload::decodePath( path );
 
@@ -173,6 +182,8 @@ namespace CDB {
 		if ( payload->beginTime() != 0 && payload->run() != 0 ) {
 			res.setMsg( "payload contains both beginTime and run, NOTE: api will use beginTime for payload::get");
 		}
+
+		FileWriteLock lock(cdbnpp_file_mutex);
 
 		std::string path = std::filesystem::current_path().string()
 			+ "/"	+ config().value("dirname",".CDBNPP") + "/";
@@ -296,6 +307,7 @@ namespace CDB {
 
 		std::string complete_path = root_path + "/" + directory + "/" + structName;
 		if ( !std::filesystem::exists( complete_path ) ) {
+			FileReadLock lock(cdbnpp_file_mutex);
 			if ( !std::filesystem::create_directories( complete_path ) ) {
 				res.setMsg( "cannot create directory = " + complete_path );
 				return res;
@@ -323,6 +335,8 @@ namespace CDB {
 
 	Result<std::string> PayloadAdapterFile::createTag( const std::string& path, int64_t tag_mode ) {
 		Result<std::string> res;
+
+		FileWriteLock lock(cdbnpp_file_mutex);
 
 		std::string sanitized_path = path;
 		trim( sanitized_path );
@@ -433,6 +447,8 @@ namespace CDB {
 	Result<std::string> PayloadAdapterFile::getTagSchema( const std::string& tag_path ) {
 		Result<std::string> res;
 
+		FileReadLock lock(cdbnpp_file_mutex);
+
 		std::string schema_path = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/.schemas";
 
@@ -455,6 +471,8 @@ namespace CDB {
 
 	Result<bool> PayloadAdapterFile::setTagSchema( const std::string& tag_path, const std::string& schema_json ) {
 		Result<bool> res;
+
+		FileWriteLock lock(cdbnpp_file_mutex);
 
 		std::string schema_path = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/.schemas";
@@ -484,6 +502,8 @@ namespace CDB {
 
 	Result<bool> PayloadAdapterFile::dropTagSchema( const std::string& tag_path ) {
 		Result<bool> res;
+
+		FileWriteLock lock(cdbnpp_file_mutex);
 
 		std::string schema_path = std::filesystem::current_path().string()
 			+ "/" + config().value("dirname",".CDBNPP") + "/.schemas";
@@ -529,6 +549,8 @@ namespace CDB {
 
 		std::string root_path = std::filesystem::current_path().string() + "/" + config().value("dirname",".CDBNPP"),
 			schema_path = root_path + "/.schemas";
+
+		FileWriteLock lock(cdbnpp_file_mutex);
 
 		if ( data.contains("tags") ) {
 			for ( const auto& [ key, tag ] : data["tags"].items() ) {
