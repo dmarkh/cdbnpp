@@ -48,6 +48,12 @@ int main(int argc, const char *argv[]) {
 	cmds.registerCommand("file:payload:setbyrun", "<path> <file> <run> <seq>", "Uploads a payload file using run/seq", file_payload_setbyrun );
 	cmds.registerCommand("file:payload:getbytime", "<path> <b-time> <e-time> <max-time>", "Requests a payload using begin-end times", file_payload_getbytime );
 	cmds.registerCommand("file:payload:getbyrun", "<path> <run> <seq> <max-time>", "Requests a payload using run/seq", file_payload_getbyrun );
+	cmds.registerCommand("file:convert:json2ubjson", "<input-file> <output-file>", "Convert JSON file to UBJSON file", file_convert_json2ubjson );
+	cmds.registerCommand("file:convert:ubjson2json", "<input-file> <output-file>", "Convert UBJSON file to JSON file", file_convert_ubjson2json );
+	cmds.registerCommand("file:convert:json2cbor", "<input-file> <output-file>", "Convert JSON file to CBOR file", file_convert_json2cbor );
+	cmds.registerCommand("file:convert:cbor2json", "<input-file> <output-file>", "Convert CBOR file to JSON file", file_convert_cbor2json );
+	cmds.registerCommand("file:convert:json2msgpack", "<input-file> <output-file>", "Convert JSON file to MsgPack file", file_convert_json2msgpack );
+	cmds.registerCommand("file:convert:msgpack2json", "<input-file> <output-file>", "Convert MsgPack file to JSON file", file_convert_msgpack2json );
 
 	cmds.registerCommand("http:tags:list", "", "Lists all tags/folders", http_tags_list );
 	cmds.registerCommand("http:tags:create", "<path>", "Creates new tag/folder", http_tags_create );

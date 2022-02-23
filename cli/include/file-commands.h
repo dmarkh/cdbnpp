@@ -7,6 +7,7 @@ namespace NPP {
 namespace CLI {
 
 using namespace NPP::CDB;
+using namespace nlohmann;
 
 inline void file_tags_create( const std::vector<std::string>& args ) {
 	if ( args.size() < 2 ) {
@@ -177,6 +178,199 @@ inline void file_payload_setbytime( const std::vector<std::string>& args ) {
     std::cout << "payload was successfully uploaded, id: " << rc.get() << "\n";
   }
 }
+
+inline void file_convert_json2ubjson( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = json::parse( input_data.begin(), input_data.end(), nullptr, false, true );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	std::string output_data{};
+	nlohmann::json::to_ubjson( js, output_data );
+	if ( !file_put_contents( args[2], output_data ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
+inline void file_convert_json2cbor( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = json::parse( input_data.begin(), input_data.end(), nullptr, false, true );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	std::string output_data{};
+	nlohmann::json::to_cbor( js, output_data );
+	if ( !file_put_contents( args[2], output_data ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
+inline void file_convert_json2msgpack( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = json::parse( input_data.begin(), input_data.end(), nullptr, false, true );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	std::string output_data{};
+	nlohmann::json::to_msgpack( js, output_data );
+	if ( !file_put_contents( args[2], output_data ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
+inline void file_convert_ubjson2json( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = nlohmann::json::from_ubjson( input_data.begin(), input_data.end(), false, false );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	if ( !file_put_contents( args[2], js.dump(2) ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
+inline void file_convert_cbor2json( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = nlohmann::json::from_cbor( input_data.begin(), input_data.end(), false, false );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	if ( !file_put_contents( args[2], js.dump(2) ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
+inline void file_convert_msgpack2json( const std::vector<std::string>& args ) {
+  if ( args.size() < 3 ) {
+    std::cerr << "ERROR: please provide arguments: <input-file> <output-file>" << "\n";
+    return;
+  }
+
+	if ( !std::filesystem::exists( args[1] ) ) {
+		std::cerr << "ERROR: input file does not exist" << "\n";
+		return;
+	}
+
+	if ( std::filesystem::exists( args[2] ) ) {
+		std::cerr << "ERROR: output file already exists" << "\n";
+		return;
+	}
+
+	std::string input_data = file_get_contents( args[1] );
+	json js = nlohmann::json::from_msgpack( input_data.begin(), input_data.end(), false, false );
+	if ( js.empty() || js.is_discarded() || js.is_null() ) {
+		std::cerr << "ERROR: input data is not a valid json" << "\n";
+		return;
+	}
+
+	if ( !file_put_contents( args[2], js.dump(2) ) ) {
+		std::cerr << "ERROR: cannot write output data" << "\n";
+		return;
+	}
+
+	std::cout << "success!" << "\n";
+}
+
 
 } // namespace CLI
 } // namespace NPP
