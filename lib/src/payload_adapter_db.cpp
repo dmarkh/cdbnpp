@@ -1,19 +1,22 @@
 
-#include "cdbnpp/payload_adapter_db.h"
+#include "npp/cdb/payload_adapter_db.h"
 
 #include <mutex>
 
-#include "cdbnpp/base64.h"
-#include "cdbnpp/json_schema.h"
-#include "cdbnpp/http_client.h"
-#include "cdbnpp/log.h"
-#include "cdbnpp/rng.h"
-#include "cdbnpp/util.h"
-#include "cdbnpp/uuid.h"
+#include "npp/util/base64.h"
+#include "npp/util/json_schema.h"
+#include "npp/util/log.h"
+#include "npp/util/rng.h"
+#include "npp/util/util.h"
+#include "npp/util/uuid.h"
 
-namespace CDBNPP {
+#include "npp/cdb/http_client.h"
+
+namespace NPP {
+namespace CDB {
 
 	using namespace soci;
+	using namespace NPP::Util;
 
 	std::mutex cdbnpp_db_access_mutex;  // protects db calls, as SOCI is not thread-safe
 
@@ -245,7 +248,8 @@ namespace CDBNPP {
 			// validate json against schema if exists
 			Result<std::string> schema = getTagSchema( payload->directory() + "/" + payload->structName() );
 			if ( schema.valid() ) {
-				if ( !validate_json_using_schema( payload->dataAsJson(), schema.get() )) {
+				Result<bool> rc = validate_json_using_schema( payload->dataAsJson(), schema.get() );
+				if ( rc.invalid() ) {
 					res.setMsg( "schema validation failed" );
 					return res;
 				}
@@ -1334,7 +1338,8 @@ namespace CDBNPP {
 			}
 		})";
 
-		if ( !validate_json_using_schema( schema_json, schema ) ) {
+		Result<bool> rc = validate_json_using_schema( schema_json, schema );
+		if ( rc.invalid() ) {
 			res.setMsg( "proposed schema is invalid" );
 			return res;
 		}
@@ -1358,5 +1363,5 @@ namespace CDBNPP {
 		return res;
 	}
 
-
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

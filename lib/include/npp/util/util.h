@@ -15,7 +15,8 @@
 #include <unordered_set>
 #include <vector>
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	template<class T>
 		T from_string(const std::string& s)
@@ -388,4 +389,5 @@ namespace CDBNPP {
     }
   }
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

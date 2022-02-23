@@ -1,5 +1,6 @@
 
-#include <cdbnpp/result.h>
+#include <npp/util/log.h>
+#include <npp/util/result.h>
 
 #include "cmd.h"
 #include "config-commands.h"
@@ -10,12 +11,14 @@
 
 #include <iostream>
 
-using namespace CDBNPP;
+using namespace NPP::CDB;
+using namespace NPP::Util;
+using namespace NPP::CLI;
 
 int main(int argc, const char *argv[]) {
-	CDBNPP::Log::setError( &std::cerr );
-	CDBNPP::Log::setInfo(  &std::cout );
-	CDBNPP::Log::setDebug( &std::cout );
+	NPP::Util::Log::setError( &std::cerr );
+	NPP::Util::Log::setInfo(  &std::cout );
+	NPP::Util::Log::setDebug( &std::cout );
 
 	Cmd cmds;
 

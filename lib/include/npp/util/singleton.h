@@ -5,7 +5,8 @@
  * using LogS = Singleton<Log, CreateMeyers>;
  */
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	// This is how a Gamma Singleton would instantiate its object.
 	template <class T> struct CreateGamma {
@@ -45,4 +46,5 @@ namespace CDBNPP {
 	template <class T, template<class> class C>
 		T* Singleton<T,C>::m_pInstance = 0;
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

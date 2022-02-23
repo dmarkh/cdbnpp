@@ -1,10 +1,13 @@
 
 #include <iostream>
 
-#include "cdbnpp/http_response.h"
-#include "cdbnpp/log.h"
+#include "npp/cdb/http_response.h"
+#include "npp/util/log.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	HttpResponse::HttpResponse( std::shared_ptr<HttpCurlHolder> curl, std::string&& p_text, std::string&& p_header, long p_error = 0 )
 		:  text(std::move(p_text)), header(std::move(p_header)), error(p_error), mCurl(std::move(curl)) {
@@ -35,4 +38,5 @@ namespace CDBNPP {
 #endif
 		}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

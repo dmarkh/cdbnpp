@@ -2,7 +2,8 @@
 
 #include <ostream>
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	class Log {
 		public:
@@ -49,7 +50,5 @@ namespace CDBNPP {
 	if ( Log::CDBNPPDbgStream && (cond) ) \
 	*Log::CDBNPPDbgStream << CDBNPP_BLUE << CDBNPP_FUNCTION << ", " << __LINE__ << " [DEBUG] " << CDBNPP_RESET
 
-
-} // namespace CDBNPP
-
-
+} // namespace Util
+} // namespace NPP

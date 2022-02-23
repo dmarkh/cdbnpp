@@ -1,9 +1,12 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
 #include <iostream>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+using namespace NPP::CDB;
 
 inline void file_tags_create( const std::vector<std::string>& args ) {
 	if ( args.size() < 2 ) {
@@ -175,5 +178,5 @@ inline void file_payload_setbytime( const std::vector<std::string>& args ) {
   }
 }
 
-
-} // namespace CDBNPP
+} // namespace CLI
+} // namespace NPP

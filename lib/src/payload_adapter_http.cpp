@@ -1,15 +1,18 @@
 
-#include "cdbnpp/payload_adapter_http.h"
+#include "npp/cdb/payload_adapter_http.h"
 
 #include <mutex>
 
-#include "cdbnpp/base64.h"
-#include "cdbnpp/json_schema.h"
-#include "cdbnpp/log.h"
-#include "cdbnpp/rng.h"
-#include "cdbnpp/uuid.h"
+#include "npp/util/base64.h"
+#include "npp/util/json_schema.h"
+#include "npp/util/log.h"
+#include "npp/util/rng.h"
+#include "npp/util/uuid.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	std::mutex cdbnpp_http_metadata_mutex;  // protects mTags, mPaths
 
@@ -188,8 +191,8 @@ namespace CDBNPP {
 			if ( schema.valid() ) {
 				std::string json_schema = schema.get();
 				nlohmann::json pjs = payload->dataAsJson();
-				bool rc = validate_json_using_schema( pjs, json_schema );
-				if ( !rc ) {
+				Result<bool> rc = validate_json_using_schema( pjs, json_schema );
+				if ( rc.invalid() ) {
 					res.setMsg( "payload failed to validate against json schema" );
 					return res;
 				}
@@ -1001,4 +1004,5 @@ namespace CDBNPP {
 		return res;
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

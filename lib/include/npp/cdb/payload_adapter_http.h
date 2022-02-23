@@ -7,11 +7,14 @@
 
 #include <nlohmann/json.hpp>
 
-#include "cdbnpp/http_client.h"
-#include "cdbnpp/i_payload_adapter.h"
-#include "cdbnpp/tag.h"
+#include "npp/cdb/http_client.h"
+#include "npp/cdb/i_payload_adapter.h"
+#include "npp/cdb/tag.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	class PayloadAdapterHttp : public IPayloadAdapter {
 		public:
@@ -75,4 +78,5 @@ namespace CDBNPP {
 			HttpClientPtr_t mHttpClient{nullptr};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

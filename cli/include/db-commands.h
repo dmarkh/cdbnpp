@@ -1,10 +1,13 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
 #include <chrono>
 #include <iostream>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+using namespace NPP::CDB;
 
 inline void db_payload_set( const std::vector<std::string>& args ) {
 	if ( args.size() < 4 ) {
@@ -369,5 +372,5 @@ inline void db_tags_import( const std::vector<std::string>& args ) {
   }
 }
 
-
-} // namespace CDBNPP
+} // namespace CLI
+} // namespace NPP

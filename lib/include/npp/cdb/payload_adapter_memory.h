@@ -1,15 +1,22 @@
 #pragma once
 
-#include "cdbnpp/i_payload_adapter.h"
+#include <deque>
+#include <memory>
+#include <string>
 
-namespace CDBNPP {
+#include "npp/cdb/i_payload_adapter.h"
 
-	using DecodedFileNameTuple = std::tuple<std::string /* flavor */, int64_t /* ct */, int64_t /* bt */, int64_t /* et */, int64_t /* dt */, int64_t /* run */, int64_t /* seq */, int64_t /* is_binary */, bool /* is_valid */>;
+#define CDBNPP_MEGABYTES 1024*1024
 
-	class PayloadAdapterFile : public IPayloadAdapter {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
+
+	class PayloadAdapterMemory : public IPayloadAdapter {
 		public:
-			PayloadAdapterFile();
-			virtual ~PayloadAdapterFile() = default;
+			PayloadAdapterMemory();
+			virtual ~PayloadAdapterMemory() = default;
 
 			// GET API:
 			PayloadResults_t getPayloads( const std::set<std::string>& paths, const std::vector<std::string>& flavors,
@@ -35,12 +42,25 @@ namespace CDBNPP {
       Result<std::string> exportTagsSchemas( bool tags = true, bool schemas = true ) override;
       Result<bool> importTagsSchemas(const std::string& stringified_json ) override;
 
-
-			// UTILITY API:
+			// UTILITY:
 			Result<std::string> downloadData( const std::string& uri ) override;
 
+			// OTHER
+			size_t cacheSize() { return mCacheSizeBytes; }
+			size_t cacheItemCount() { return mCache.size(); }
+			void setCacheSizeLimit( size_t lo, size_t hi ) { mCacheSizeLimitLo = lo; mCacheSizeLimitHi = hi; }
+			void setCacheItemLimit( size_t lo, size_t hi ) { mCacheItemLimitLo = lo; mCacheSizeLimitHi = hi; }
+
 		private:
-			DecodedFileNameTuple decodeFilename( const std::string& filename );
+			bool maintainCacheWithinLimits();
+
+			std::deque<SPayloadPtr_t> mCache{};
+			size_t mCacheSizeBytes{0};
+			size_t mCacheSizeLimitLo{ 50 * CDBNPP_MEGABYTES};
+			size_t mCacheSizeLimitHi{100 * CDBNPP_MEGABYTES};
+			size_t mCacheItemLimitLo{ 5000};
+			size_t mCacheItemLimitHi{10000};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

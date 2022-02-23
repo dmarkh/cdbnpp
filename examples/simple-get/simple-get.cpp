@@ -1,9 +1,9 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
 #include <iostream>
 
-using namespace CDBNPP;
+using namespace NPP::CDB;
 using namespace nlohmann;
 
 int main() {

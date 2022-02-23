@@ -9,9 +9,10 @@
 
 #include <curl/curl.h>
 
-#include "cdbnpp/http_curl_holder.h"
+#include "npp/cdb/http_curl_holder.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class HttpResponse {
 		public:
@@ -38,4 +39,5 @@ namespace CDBNPP {
 			HttpCurlHolderPtr_t mCurl;
 	}; // class HttpResponse
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

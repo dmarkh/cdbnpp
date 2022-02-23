@@ -1,9 +1,12 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
 #include <iostream>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+using namespace NPP::CDB;
 
 inline void config_show_adapters( __attribute__ ((unused)) const std::vector<std::string>& args ) {
 	Service db;
@@ -15,4 +18,5 @@ inline void config_show_adapters( __attribute__ ((unused)) const std::vector<std
 	}
 }
 
-} // namespace CDBNPP
+} // namespace CLI
+} // namespace NPP

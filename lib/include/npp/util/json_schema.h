@@ -6,11 +6,14 @@
 #include <valijson/schema_parser.hpp>
 #include <valijson/validator.hpp>
 
-#include "cdbnpp/log.h"
+#include "npp/util/log.h"
+#include "npp/util/result.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
-  bool inline validate_json_using_schema( const nlohmann::json& data_json, const nlohmann::json& schema_json ) {
+  Result<bool> inline validate_json_using_schema( const nlohmann::json& data_json, const nlohmann::json& schema_json ) {
+		Result<bool> res;
 		try {
       valijson::Schema mySchema;
       valijson::SchemaParser parser;
@@ -23,75 +26,82 @@ namespace CDBNPP {
 		  if (!validator.validate(mySchema, myTargetAdapter, &results)) {
 		    valijson::ValidationResults::Error error;
 		    unsigned int errorNum = 1;
+				std::string errMsg;
 		    while ( results.popError(error) ) {
     		  std::string context;
 		      std::vector<std::string>::iterator itr = error.context.begin();
 		      for (; itr != error.context.end(); ++itr ) {
     		    context += *itr;
 		      }
-		      CDBNPP_LOG_ERROR << "Schema Error #" << errorNum << "\n"
-    		    << "  context: " << context << "\n"
-		        << "  desc:    " << error.description << std::endl;
+					errMsg += "Schema Error #" + std::to_string(errorNum) + "\n"
+    		    + "  context: " + context + "\n"
+		        + "  desc:    " + error.description + "\n";
     		  ++errorNum;
     		}
-				return false;
+				res.setMsg( errMsg );
+				return res;
 			}
     } catch( std::exception const & e ) {
-      CDBNPP_LOG_ERROR << "json schema validation exception:" << e.what() << "\n";
-      return false;
+      res.setMsg( "json schema validation exception:" + std::string(e.what()) );
+      return res;
     }
-		return true;
+		res = true;
+		return res;
 	}
 
-  bool inline validate_json_using_schema( const nlohmann::json& data_json, const std::string& schema ) {
+  Result<bool> inline validate_json_using_schema( const nlohmann::json& data_json, const std::string& schema ) {
+		Result<bool> res;
 		nlohmann::json schema_json;
     try {
       schema_json = nlohmann::json::parse( schema, nullptr, false, false );
       if ( schema_json.is_discarded() ) {
-        CDBNPP_LOG_ERROR << "malformed schema json" << std::endl;
-        return false;
+        res.setMsg( "malformed schema json" );
+        return res;
       }
     } catch( std::exception const & e ) {
-      CDBNPP_LOG_ERROR << "json schema validation exception:" << e.what() << "\n";
-      return false;
+      res.setMsg( "json schema validation exception:" + std::string(e.what()) );
+      return res;
     }
     return validate_json_using_schema( data_json, schema_json );
 	}
 
-  bool inline validate_json_using_schema( const std::string& data, const nlohmann::json& schema_json ) {
+  Result<bool> inline validate_json_using_schema( const std::string& data, const nlohmann::json& schema_json ) {
+		Result<bool> res;
 		nlohmann::json data_json;
     try {
       data_json = nlohmann::json::parse( data, nullptr, false, false );
       if ( data_json.is_discarded() ) {
-        CDBNPP_LOG_ERROR << "malformed data json" << std::endl;
-        return false;
+        res.setMsg( "malformed data json" );
+        return res;
       }
     } catch( std::exception const & e ) {
-      CDBNPP_LOG_ERROR << "json schema validation exception:" << e.what() << "\n";
-      return false;
+      res.setMsg( "json schema validation exception:" + std::string(e.what()) );
+      return res;
     }
     return validate_json_using_schema( data_json, schema_json );
 	}
 
-  bool inline validate_json_using_schema( const std::string& data, const std::string& schema ) {
+  Result<bool> inline validate_json_using_schema( const std::string& data, const std::string& schema ) {
+		Result<bool> res;
 		nlohmann::json data_json;
 		nlohmann::json schema_json;
     try {
       data_json = nlohmann::json::parse( data, nullptr, false, false );
       if ( data_json.is_discarded() ) {
-        CDBNPP_LOG_ERROR << "malformed data json" << std::endl;
-        return false;
+        res.setMsg( "malformed data json" );
+        return res;
       }
       schema_json = nlohmann::json::parse( schema, nullptr, false, false );
       if ( schema_json.is_discarded() ) {
-        CDBNPP_LOG_ERROR << "malformed schema json" << std::endl;
-        return false;
+        res.setMsg( "malformed schema json" );
+        return res;
       }
     } catch( std::exception const & e ) {
-      CDBNPP_LOG_ERROR << "json schema validation exception:" << e.what() << "\n";
-      return false;
+      res.setMsg( "json schema validation exception:" + std::string(e.what()) );
+      return res;
     }
     return validate_json_using_schema( data_json, schema_json );
   }
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

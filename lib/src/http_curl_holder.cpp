@@ -1,13 +1,16 @@
 
-#include "cdbnpp/http_curl_holder.h"
+#include "npp/cdb/http_curl_holder.h"
 
 #include <chrono>
 #include <iostream>
 #include <thread>
 
-#include "cdbnpp/log.h"
+#include "npp/util/log.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	size_t cdbWriteFunction(char* ptr, size_t size, size_t nmemb, std::string* data) {
 		size *= nmemb;
@@ -179,4 +182,5 @@ namespace CDBNPP {
 		return "";
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

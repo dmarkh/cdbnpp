@@ -6,9 +6,12 @@
 #include <iostream>
 #include <iomanip>
 
-#include <cdbnpp/singleton.h>
+#include <npp/util/singleton.h>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+	using namespace NPP::Util;
 
 	typedef std::map<std::string, std::tuple<std::string,std::string,std::function<void( const std::vector<std::string>& args )>>> MapOfCommands;
 
@@ -70,4 +73,5 @@ namespace CDBNPP {
 
 	typedef Singleton<Cmd, CreateMeyers> CmdS;
 
-} // namespace CDBNPP
+} // namespace CLI
+} // namespace NPP

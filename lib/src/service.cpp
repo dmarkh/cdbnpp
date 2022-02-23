@@ -1,28 +1,35 @@
 
-#include "cdbnpp/service.h"
+#include "npp/cdb/service.h"
 
 #include <iostream>
 #include <unordered_set>
 
-#include "cdbnpp/json_schema.h"
-#include "cdbnpp/log.h"
-#include "cdbnpp/payload_adapter_memory.h"
-#include "cdbnpp/payload_adapter_file.h"
-#include "cdbnpp/payload_adapter_db.h"
-#include "cdbnpp/payload_adapter_http.h"
-#include "cdbnpp/util.h"
-#include "cdbnpp/uuid.h"
+#include "npp/util/json_schema.h"
+#include "npp/util/log.h"
+#include "npp/util/util.h"
+#include "npp/util/uuid.h"
 
-namespace CDBNPP {
+#include "npp/cdb/payload_adapter_memory.h"
+#include "npp/cdb/payload_adapter_file.h"
+#include "npp/cdb/payload_adapter_db.h"
+#include "npp/cdb/payload_adapter_http.h"
+
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	void Service::init( const std::string& adapters ) {
 		if ( !mConfig.empty() && mConfig != nlohmann::json::value_t::null ) {
 			if ( mConfig.is_discarded() ) {
 				std::cerr << "CDBNPP FATAL ERROR: config file is set but is malformed" << std::endl;
 				std::exit(EXIT_FAILURE);
-			} else if ( !validateConfigFile() ) {
-				std::cerr << "CDBNPP FATAL ERROR: config file is set but fails schema validation:" << std::endl;
-				std::exit(EXIT_FAILURE);
+			} else {
+				Result<bool> rc = validateConfigFile();
+				if ( rc.invalid() ) {
+					std::cerr << "CDBNPP FATAL ERROR: config file is set but fails schema validation:" << std::endl;
+					std::exit(EXIT_FAILURE);
+				}
 			}
 		} else {
 			// search for a config file
@@ -61,7 +68,8 @@ namespace CDBNPP {
 					mConfig = nullptr;
 					continue;
 				}
-				if ( !validateConfigFile() ) {
+				Result<bool> rc = validateConfigFile();
+				if ( rc.invalid() ) {
 					// CDBNPP config file found but fails schema validation, skipping
 					mConfig = nullptr;
 					continue;
@@ -312,7 +320,8 @@ namespace CDBNPP {
 		return res;
 	}
 
-	bool Service::validateConfigFile() {
+	Result<bool> Service::validateConfigFile() {
+		Result<bool> res;
 		std::string config_schema = R"(
 {
   "$id":"file://.cdbnpp_config.json",
@@ -555,7 +564,8 @@ namespace CDBNPP {
 	}
 )";
 
-return validate_json_using_schema( mConfig, config_schema );
+	return validate_json_using_schema( mConfig, config_schema );
 }
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

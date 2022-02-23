@@ -1,15 +1,18 @@
 
-#include "cdbnpp/payload_adapter_file.h"
+#include "npp/cdb/payload_adapter_file.h"
 
 #include <filesystem>
 #include <fstream>
 
-#include "cdbnpp/json_schema.h"
-#include "cdbnpp/log.h"
-#include "cdbnpp/util.h"
-#include "cdbnpp/uuid.h"
+#include "npp/util/json_schema.h"
+#include "npp/util/log.h"
+#include "npp/util/util.h"
+#include "npp/util/uuid.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	PayloadAdapterFile::PayloadAdapterFile() : IPayloadAdapter("file") {}
 
@@ -191,8 +194,8 @@ namespace CDBNPP {
 
 		if ( schema_data.size() ) {
 			// now, validate payload data vs schema
-			bool rc = validate_json_using_schema( payload->data(), schema_data );
-			if ( !rc ) {
+			Result<bool> rc = validate_json_using_schema( payload->data(), schema_data );
+			if ( rc.invalid() ) {
 				res.setMsg( "schema was found for " + payload->URI() + ", but schema validation failed" );
 				return res;
 			}
@@ -554,4 +557,5 @@ namespace CDBNPP {
 		return res;
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

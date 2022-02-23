@@ -1,7 +1,10 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+using namespace NPP::CDB;
 
 inline void memory_test_setget( __attribute__ ((unused)) const std::vector<std::string>& args ) {
   Service db;
@@ -79,4 +82,5 @@ inline void memory_test_setget( __attribute__ ((unused)) const std::vector<std::
 	}
 }
 
+} // namespace CLI
 } // namespace CDBNPP

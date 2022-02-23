@@ -1,8 +1,9 @@
 #pragma once
 
-#include "cdbnpp/util.h"
+#include "npp/util/util.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class Upload {
 		public:
@@ -18,7 +19,7 @@ namespace CDBNPP {
 			int64_t endTime() { return mEndTime; }
 			int64_t run() { return mRun; }
 
-			void setPath( const std::string& path ) { mPath = path; sanitize_alnumslashuscore(mPath); }
+			void setPath( const std::string& path ) { mPath = path; NPP::Util::sanitize_alnumslashuscore(mPath); }
 			void setData( const std::string& data ) { mData = data; }
 			void setData( const nlohmann::json& data ) { mData = data.dump(); }
 			void setBeginTime( int64_t tm ) { mBeginTime = (tm >= 0 ? tm : 0); }
@@ -34,4 +35,5 @@ namespace CDBNPP {
 			int64_t mRun{0};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

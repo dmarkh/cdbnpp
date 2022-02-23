@@ -2,10 +2,11 @@
 
 #include <memory>
 
-#include "cdbnpp/http_curl_holder.h"
-#include "cdbnpp/http_response.h"
+#include "npp/cdb/http_curl_holder.h"
+#include "npp/cdb/http_response.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class HttpClient;
 
@@ -54,4 +55,5 @@ namespace CDBNPP {
 			unsigned int mSleepSeconds{30};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

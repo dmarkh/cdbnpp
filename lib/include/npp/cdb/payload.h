@@ -8,9 +8,10 @@
 #include <tuple>
 #include <vector>
 
-#include "cdbnpp/util.h"
+#include "npp/util/util.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class Payload;
 
@@ -48,13 +49,13 @@ namespace CDBNPP {
 			const std::string  URI() const { return mURI; }
 
 			int64_t createTime() const { return mCreateTime; }
-			std::string createTimeAsStr() const { return unixtime_to_utc_date(mCreateTime); }
+			std::string createTimeAsStr() const { return NPP::Util::unixtime_to_utc_date(mCreateTime); }
 			int64_t beginTime() const { return mBeginTime; }
-			std::string beginTimeAsStr() const { return unixtime_to_utc_date(mBeginTime); }
+			std::string beginTimeAsStr() const { return NPP::Util::unixtime_to_utc_date(mBeginTime); }
 			int64_t endTime() const { return mEndTime; }
-			std::string endTimeAsStr() const { return unixtime_to_utc_date(mEndTime); }
+			std::string endTimeAsStr() const { return NPP::Util::unixtime_to_utc_date(mEndTime); }
 			int64_t deactiveTime() const { return mDeactiveTime; }
-			std::string deactiveTimeAsStr() const { return unixtime_to_utc_date(mDeactiveTime); }
+			std::string deactiveTimeAsStr() const { return NPP::Util::unixtime_to_utc_date(mDeactiveTime); }
 			int64_t run() const { return mRun; }
 			int64_t seq() const { return mSeq; }
 
@@ -74,22 +75,22 @@ namespace CDBNPP {
 
 			void setURI( const std::string& uri ) {
 				mURI = uri;
-				auto parts = explode( uri, '.' );
+				auto parts = NPP::Util::explode( uri, '.' );
 				std::string fmt = parts.back();
-				string_to_lower_case(fmt);
-				sanitize_alnum(fmt);
+				NPP::Util::string_to_lower_case(fmt);
+				NPP::Util::sanitize_alnum(fmt);
 				setData( std::string(""), fmt );
 			}
 
 			void setCreateTime( int64_t createTime ) { mCreateTime = createTime; }
-			void setCreateTime( const std::string& createTime ) { mCreateTime = string_to_time(createTime); }
+			void setCreateTime( const std::string& createTime ) { mCreateTime = NPP::Util::string_to_time(createTime); }
 			void setDeactiveTime( int64_t deactiveTime ) { mDeactiveTime = deactiveTime; }
-			void setDeactiveTime( const std::string& deactiveTime ) { mDeactiveTime = string_to_time(deactiveTime); }
+			void setDeactiveTime( const std::string& deactiveTime ) { mDeactiveTime = NPP::Util::string_to_time(deactiveTime); }
 
 			void setBeginTime( int64_t beginTime) { mBeginTime = beginTime; if ( mBeginTime != 0 ) { mMode = 1; } }
-			void setBeginTime( const std::string& beginTime) { mBeginTime = string_to_time( beginTime ); if ( mBeginTime != 0 ) { mMode = 1; } }
+			void setBeginTime( const std::string& beginTime) { mBeginTime = NPP::Util::string_to_time( beginTime ); if ( mBeginTime != 0 ) { mMode = 1; } }
 			void setEndTime( int64_t endTime ) { mEndTime = endTime; if ( mEndTime != 0 ) { mMode = 1; } }
-			void setEndTime( const std::string& endTime ) { mEndTime = string_to_time( endTime ); if ( mEndTime != 0 ) { mMode = 1; } }
+			void setEndTime( const std::string& endTime ) { mEndTime = NPP::Util::string_to_time( endTime ); if ( mEndTime != 0 ) { mMode = 1; } }
 
 			void setRun( int64_t run ) { mRun = run; if ( mRun != 0 ) { mMode = 2; } }
 			void setSeq( int64_t seq ) { mSeq = seq; if ( mSeq != 0 ) { mMode = 2; } }
@@ -131,5 +132,5 @@ namespace CDBNPP {
 			std::string mFmt{}; // dat, json, bson, ubjson, cbor, msgpack
 	};
 
-
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

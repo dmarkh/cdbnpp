@@ -6,13 +6,17 @@
 
 #include <jwt/jwt.hpp>
 
-#include "cdbnpp/payload.h"
-#include "cdbnpp/upload.h"
-#include "cdbnpp/uuid.h"
-#include "cdbnpp/result.h"
-#include "cdbnpp/tag.h"
+#include "npp/util/uuid.h"
+#include "npp/util/result.h"
 
-namespace CDBNPP {
+#include "npp/cdb/payload.h"
+#include "npp/cdb/upload.h"
+#include "npp/cdb/tag.h"
+
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	class IPayloadAdapter;
 	using IPayloadAdapterPtr_t = std::shared_ptr<IPayloadAdapter>;
@@ -58,4 +62,5 @@ namespace CDBNPP {
 			nlohmann::json mConfig{};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

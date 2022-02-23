@@ -4,10 +4,13 @@
 
 #include <atomic>
 
-#include "cdbnpp/i_payload_adapter.h"
-#include "cdbnpp/tag.h"
+#include "npp/cdb/i_payload_adapter.h"
+#include "npp/cdb/tag.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	class PayloadAdapterDb : public IPayloadAdapter {
 		public:
@@ -83,4 +86,5 @@ namespace CDBNPP {
 			std::shared_ptr<soci::session> mSession;
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

@@ -5,9 +5,10 @@
 
 #include <xoshiro-cpp/xoshiro-cpp.h>
 
-#include "cdbnpp/singleton.h"
+#include "npp/util/singleton.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	class Rng;
 
@@ -31,5 +32,5 @@ namespace CDBNPP {
 			std::shared_ptr<XoshiroCpp::Xoshiro256StarStar> mRng{nullptr};
 	};
 
-
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

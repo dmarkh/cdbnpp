@@ -26,7 +26,8 @@
 
 #include <string>
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	class base64 {
 		public:
@@ -117,4 +118,5 @@ namespace CDBNPP {
 			}
 	};
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

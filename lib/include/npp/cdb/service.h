@@ -9,13 +9,15 @@
 #include <utility>
 #include <vector>
 
-#include "cdbnpp/i_payload_adapter.h"
-#include "cdbnpp/payload.h"
-#include "cdbnpp/payload_adapter_db.h"
-#include "cdbnpp/result.h"
-#include "cdbnpp/singleton.h"
+#include "npp/util/result.h"
+#include "npp/util/singleton.h"
 
-namespace CDBNPP {
+#include "npp/cdb/i_payload_adapter.h"
+#include "npp/cdb/payload.h"
+#include "npp/cdb/payload_adapter_db.h"
+
+namespace NPP {
+namespace CDB {
 
 	class Service;
 
@@ -86,7 +88,7 @@ namespace CDBNPP {
 			Result<bool> resolveURI( SPayloadPtr_t& payload );
 
 		private:
-			bool validateConfigFile();
+			Result<bool> validateConfigFile();
 
 			int64_t mEventTime{0};
 			int64_t mMaxEntryTime{0};
@@ -105,5 +107,5 @@ namespace CDBNPP {
 			nlohmann::json mConfig{};
 	};
 
-
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

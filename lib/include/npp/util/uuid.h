@@ -7,7 +7,8 @@
 #include <picosha2/picosha2.h>
 #include <sole/sole.h>
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	inline std::string generate_uuid() {
 		return sole::uuid1().str(); // time-based uuid
@@ -39,4 +40,5 @@ namespace CDBNPP {
     return res;
 	}
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

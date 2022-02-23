@@ -1,7 +1,8 @@
 
-#include "cdbnpp/http_client.h"
+#include "npp/cdb/http_client.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	HttpClient::HttpClient() {}
 	HttpClient::~HttpClient() {}
@@ -88,4 +89,5 @@ namespace CDBNPP {
 		curl->SetSleepSeconds( mSleepSeconds );
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

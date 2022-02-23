@@ -1,9 +1,12 @@
 
-#include <cdbnpp/cdbnpp.h>
+#include <npp/cdb/cdb.h>
 
 #include <iostream>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CLI {
+
+using namespace NPP::CDB;
 
 inline void http_payload_getbyrun( const std::vector<std::string>& args ) {
   if ( args.size() < 3 ) {
@@ -339,4 +342,5 @@ inline void http_tags_import( const std::vector<std::string>& args ) {
   }
 }
 
-} // namespace CDBNPP
+} // namespace CLI
+} // namespace NPP

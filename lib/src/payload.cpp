@@ -1,12 +1,15 @@
 
-#include "cdbnpp/payload.h"
+#include "npp/cdb/payload.h"
 
 #include <iostream>
 
-#include "cdbnpp/log.h"
-#include "cdbnpp/util.h"
+#include "npp/util/log.h"
+#include "npp/util/util.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	nlohmann::json Payload::dataAsJson() const {
 		if ( mFmt == "json" ) {
@@ -93,4 +96,5 @@ namespace CDBNPP {
 		return std::make_tuple( flavors, directory, structName, true );
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

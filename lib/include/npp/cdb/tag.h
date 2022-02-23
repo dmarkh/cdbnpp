@@ -5,7 +5,8 @@
 #include <memory>
 #include <unordered_map>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class Tag;
 
@@ -71,4 +72,5 @@ namespace CDBNPP {
 			WTagPtr_t mParent{};
 	};
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

@@ -8,7 +8,8 @@
 
 #include <curl/curl.h>
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
 
 	class HttpCurlHolder;
 
@@ -67,4 +68,5 @@ namespace CDBNPP {
 			unsigned int mSleepSeconds{30};
 	}; // class HttpCurlHolder
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

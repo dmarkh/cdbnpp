@@ -6,7 +6,8 @@
 // https://www.cppstories.com/2021/sphero-cpp-return/
 // ...then modified to include a message
 
-namespace CDBNPP {
+namespace NPP {
+namespace Util {
 
 	template <typename T>
 	class Result {
@@ -41,4 +42,5 @@ namespace CDBNPP {
 			std::string mMsg{};
 	};
 
-} // namespace CDBNPP
+} // namespace Util
+} // namespace NPP

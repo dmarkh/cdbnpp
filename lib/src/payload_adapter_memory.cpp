@@ -1,12 +1,15 @@
 
-#include "cdbnpp/payload_adapter_memory.h"
+#include "npp/cdb/payload_adapter_memory.h"
 
 #include <algorithm>
 #include <shared_mutex>
 
-#include "cdbnpp/log.h"
+#include "npp/util/log.h"
 
-namespace CDBNPP {
+namespace NPP {
+namespace CDB {
+
+	using namespace NPP::Util;
 
 	std::shared_mutex cdbnpp_memory_mutex;
 	typedef std::unique_lock<std::shared_mutex>  WriteLock;
@@ -189,4 +192,5 @@ namespace CDBNPP {
 		return res;
 	}
 
-} // namespace CDBNPP
+} // namespace CDB
+} // namespace NPP

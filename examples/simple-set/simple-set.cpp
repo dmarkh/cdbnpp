@@ -1,8 +1,10 @@
 
-#include <cdbnpp/cdbnpp.h>
-#include <iostream>
+#include <npp/cdb/cdb.h>
 
-using namespace CDBNPP;
+#include <iostream>
+#include <string>
+
+using namespace NPP::CDB;
 using namespace nlohmann;
 
 int main() {
@@ -33,17 +35,20 @@ int main() {
 
 	// ...then, set external data ref...
 	payload->setURI("http://my-data-server.gov/data/payload.bson");
+
 	// ..OR..
 	payload->setURI("file:///my/cvmfs/mount/point/payload.msgpack");
+
 	// ..OR..
 	json val = R"({
 		"chi2": 5.2,
 		"pos": 3.141
   })"_json;
 	payload->setData( val, "ubjson" );
+
 	// ..OR..
 	std::string data = "BINARYDATA";
-	payload->setData( data, /* fmt = "dat" */ );
+	payload->setData( data /*, fmt = "dat" */ );
 
 	Result<std::string> rc = cdb.setPayload( payload );
 	if ( rc.invalid() ) {
