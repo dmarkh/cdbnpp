@@ -14,10 +14,11 @@ It summarizes the CDB development and usage experience of STAR@RHIC experiment f
 - via direct db connection using SOCI DBAL (stands for Simple Open (Database) Call Interface)
 - via HTTP-based REST-like API
 - via flat file storage having data attributes embedded in file names
+
 Intermediate results are cached using the provided in-memory cache.
 
-Direct-db adapter of CDBNPP supports MySQL, Postres, Sqlite3 and, in theory, most if not all DB connectors supported by SOCI. HTTP adapter
-supports MySQL and Postgres at the moment.
+Direct-db adapter of CDBNPP supports MySQL, Postres, Sqlite3 and, in theory, most if not all DB connectors supported by SOCI. REST service 
+(accessible via HTTP adapter) supports MySQL and Postgres storage backends at the moment.
 
 #### Packaging
 This repository provides three major parts of CDBNPP:
