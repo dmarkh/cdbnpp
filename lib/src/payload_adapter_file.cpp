@@ -333,7 +333,7 @@ namespace CDB {
 		return res;
 	}
 
-	Result<std::string> PayloadAdapterFile::createTag( const std::string& path, int64_t tag_mode ) {
+	Result<std::string> PayloadAdapterFile::createTag( const std::string& path, __attribute__ ((unused)) int64_t tag_mode ) {
 		Result<std::string> res;
 
 		FileWriteLock lock(cdbnpp_file_mutex);
