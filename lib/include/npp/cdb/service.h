@@ -32,11 +32,11 @@ namespace CDB {
 
 			// GET API:
 			PayloadResults_t getPayloads( const std::set<std::string>& paths, bool fetch_data = true );
-			Result<std::string> setPayload( const SPayloadPtr_t& payload );
 
 			// SET API:
 			Result<SPayloadPtr_t> prepareUpload( const std::string& path ); // new upload
 			SPayloadPtr_t& prepareUpload( SPayloadPtr_t& payload ); // for re-upload
+			Result<std::string> setPayload( const SPayloadPtr_t& payload );
 
 			// ADMIN API:
 			Result<std::string> deactivatePayload( const SPayloadPtr_t& payload, int64_t deactiveTime );
