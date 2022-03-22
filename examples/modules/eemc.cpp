@@ -8,15 +8,15 @@
 using namespace NPP::Util;
 
 namespace NPP {
-namespace Framework {
+	namespace Framework {
 
-	int32_t Eemc::execute() {
-    for ( int i = 0; i < 10; i++ ) {
-      CDBNPP_LOG_DEBUG << "executing: " << id() << "\n";
-      std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
-    }
-		return 0;
-	}
+		int32_t Eemc::execute() {
+			for ( int i = 0; i < 10; i++ ) {
+				CDBNPP_LOG_DEBUG << "executing: " << id() << "\n";
+				std::this_thread::sleep_for( std::chrono::seconds( 1 ) );
+			}
+			return 0;
+		}
 
-} // namespace Framework
+	} // namespace Framework
 } // namespace NPP

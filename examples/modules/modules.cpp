@@ -17,9 +17,9 @@ using namespace NPP::Util;
 
 int main() {
 
-  Log::setError( &std::cerr );
-  Log::setInfo(  &std::cout );
-  Log::setDebug( &std::cout );
+	Log::setError( &std::cerr );
+	Log::setInfo(  &std::cout );
+	Log::setDebug( &std::cout );
 
 	uint32_t max_threads_requested{10};
 
